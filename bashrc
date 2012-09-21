@@ -10,12 +10,10 @@ shopt -s checkwinsize
 
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
 
-PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;32m\]$(__git_ps1 ":%s")$(hg-ps1)\[\e[1;30m\]]\$\[\e[0m\] '
+# PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;32m\]$(__git_ps1 ":%s")$(hg-ps1)\[\e[1;30m\]]\$\[\e[0m\] '
+#PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
+PS1='\[\e[1;30m\][\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
 
 GPG_TTY=`tty` 
 export GPG_TTY 
@@ -55,12 +53,11 @@ export PAGER
 . ~/Code/ducttape/z.sh # http://github.com/rupa/z
 . ~/Code/ducttape/s.sh # http://github.com/rupa/s
 
-if [[ $TERM =~ "256color" ]]; then eval $( dircolors -b $HOME/.LS_COLORS ); fi
+DIRCOLORS=dircolors
+if [ -x /usr/local/bin/gdircolors ]; then
+    DIRCOLORS=gdircolors
+fi
 
-GOROOT=$HOME/Apps/go
-GOOS=linux
-GOARCH=amd64
-export GOROOT GOOS GOARCH
+if [[ $TERM =~ "256color" ]]; then eval $( $DIRCOLORS -b $HOME/.LS_COLORS ); fi
 
-export TIGCC=/usr/local/tigcc                                           
 export PATH=$PATH:$TIGCC/bin:$HOME/.cabal/bin

@@ -1,36 +1,28 @@
 " hax
 filetype off
 
-set rtp+=$GOROOT/misc/vim
+let maplocalleader = ","
 
-call pathogen#runtime_append_all_bundles()
+set rtp+=/usr/local/go/misc/vim
+
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+Bundle 'gmarik/vundle'
+Bundle 'nanotech/jellybeans.vim'
+Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-eunuch'
+Bundle 'tpope/vim-afterimage'
+Bundle 'scrooloose/syntastic'
+" Bundle 'plasticboy/vim-markdown'
+" Bundle 'tpope/vim-markdown'
+Bundle 'vim-pandoc/vim-pandoc'
+Bundle 'myusuf3/numbers.vim'
 
 set autoindent
 filetype plugin indent on
-set ofu=syntaxcomplete#Complete
-set completeopt=longest,menuone
-
-function! SuperCleverTab()
-	if strpart(getline('.'), 0, col('.') - 1) =~ '^\s*$'
-		return "\<Tab>"
-	else
-		if &omnifunc != ''
-			return "\<C-X>\<C-O>"
-		elseif &dictionary != ''
-			return "\<C-K>"
-		else
-			return "\<C-N>"
-		endif
-	endif
-endfunction
-
-autocmd FileType tex source ~/.vim/tex.vim
-
-" au BufWritePost * if getline(1) =~ "^#!" | if getline(1) =~ "/bin/" | silent !chmod +x <afile> | endif | endif
-autocmd BufWritePost *.coffee silent CoffeeMake!
 
 set background=dark
-colorscheme jdpage_black
+colorscheme jellybeans
 syntax on
 
 set number
@@ -46,7 +38,13 @@ noremap <Right> <nop>
 set wrap
 set linebreak
 
-set cc=80
-set ts=4 sw=4 expandtab
+set colorcolumn=80
+set tabstop=4 shiftwidth=4 expandtab smarttab
 
 let g:lisp_rainbow=1
+let g:syntastic_auto_log_list=1
+set guifont=MonteCarlo\ Regular:h11
+" set guifont=Envy\ Code\ R:h11
+
+" enable hidden buffers
+set hidden
