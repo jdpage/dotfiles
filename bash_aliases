@@ -18,6 +18,11 @@ alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias lsd="ls -X --group-directories-first"
 alias chmox='chmod +x'
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -I'
+alias t='todo.sh -a -N -t'
+alias te='vim ~/Dropbox/todo/todo.txt'
 
 alias yum='sudo yum'
 alias yumi='sudo yum install'

@@ -12,8 +12,6 @@ fi
 # User specific environment and startup programs
 
 PLAN9=/usr/local/plan9
-PATH=$PATH:$HOME/bin:$HOME/Code/ducttape:$PLAN9/bin
-
-# eval `ssh-agent`
+PATH=$HOME/bin:$HOME/Code/ducttape:$PATH:$PLAN9/bin
 
 export PLAN9 PATH

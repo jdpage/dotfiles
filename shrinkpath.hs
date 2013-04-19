@@ -1,16 +1,15 @@
+import Data.Char
 import System.Environment
-import Data.List
-import Data.List.Split
+import System.FilePath
 
-shrink :: [String] -> [String]
-shrink (x:xs) = shrink' x xs
-    where
-        shrink' x [x'] = take 2 x : [x']
-        shrink' x xs = take 2 x : shrink xs
-shrink x = x
+shrinkname (x:y:xs)
+    | isLower x && isLower y   = shrinkname (x:xs)
+    | otherwise                = x:shrinkname (y:xs)
+shrinkname xs = xs
 
-shrinkpath :: String -> String
-shrinkpath = intercalate "/" . shrink . splitOn "/"
+shrinkpath path
+    | path == "~"   = "~"
+    | otherwise     = let (d, f) = splitFileName path in shrinkname d </> f
 
 main = do
     args <- getArgs

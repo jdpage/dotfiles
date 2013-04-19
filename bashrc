@@ -13,7 +13,7 @@ shopt -s checkwinsize
 
 # PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;32m\]$(__git_ps1 ":%s")$(hg-ps1)\[\e[1;30m\]]\$\[\e[0m\] '
 #PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
-PS1='\[\e[1;30m\][\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
+PS1='\[\e[1;30m\][\[\e[1;30m\]\u@\[\e[1;32m\]\h \[\e[1;37m\]$($HOME/dotfiles/shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
 
 GPG_TTY=`tty` 
 export GPG_TTY 
@@ -25,6 +25,10 @@ export GPG_TTY
 #*)
 #	;;
 #esac
+
+if [ "$TERM" = "xterm" ]; then
+    export TERM="xterm-256color" # stupid vte
+fi
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -60,4 +64,15 @@ fi
 
 if [[ $TERM =~ "256color" ]]; then eval $( $DIRCOLORS -b $HOME/.LS_COLORS ); fi
 
-export PATH=$PATH:$TIGCC/bin:$HOME/.cabal/bin
+export PLAN9=/usr/local/plan9
+export PATH=$HOME/.cabal/bin:$PATH:$PLAN9/bin:/usr/local/go/bin
+
+eval $(gnome-keyring-daemon --start)
+SSH_ASKPASS=/usr/libexec/openssh/ssh-askpass
+export GNOME_KEYRING_CONTROL SSH_AUTH_SOCK GPG_AGENT_INFO SSH_ASKPASS
+
+eval $(env-music)
+
+source "$HOME/src/todo-cli/todo.txt_cli-2.9/todo_completion"
+complete -F _todo t
+export TODOTXT_DEFAULT_ACTION=ls

@@ -1,50 +1,46 @@
-" hax
+" disable filetype during setup
 filetype off
 
-let maplocalleader = ","
-
-set rtp+=/usr/local/go/misc/vim
-
+" vundle stuff!
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 Bundle 'gmarik/vundle'
-Bundle 'nanotech/jellybeans.vim'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-eunuch'
-Bundle 'tpope/vim-afterimage'
+
 Bundle 'scrooloose/syntastic'
-" Bundle 'plasticboy/vim-markdown'
-" Bundle 'tpope/vim-markdown'
-Bundle 'vim-pandoc/vim-pandoc'
-Bundle 'myusuf3/numbers.vim'
+" Bundle 'vim-pandoc/vim-pandoc'
+Bundle 'vim-scripts/taglist.vim'
+Bundle 'nanotech/jellybeans.vim'
+Bundle 'vim-scripts/taglist.vim'
 
-set autoindent
+" map local leader (don't remember what this does :)
+let maplocalleader = ","
+
+" go stuff! Might need to be updated
+set rtp+=/usr/local/go/misc/vim
+
+" filetype and syntaxy stuff
 filetype plugin indent on
-
-set background=dark
+" colorscheme kyle
 colorscheme jellybeans
 syntax on
 
-set number
 
-map k gk
-map j gj
-map E ge
-noremap <Up> <nop>
-noremap <Down> <nop>
-noremap <Left> <nop>
-noremap <Right> <nop>
+"-- PORTABLE STUFF BELOW --"
 
-set wrap
-set linebreak
+set autoindent          " automatic indenting
+set linebreak           " when visually wrapping, wrap sensibly
+set number              " display line numbers
+set textwidth=80        " auto-wrap at 80 chars
+set colorcolumn=80      " show a vertical line at 80 chars
+set tabstop=8           " tabs are four characters wide
+set shiftwidth=4        " indents are four characters wide
+set expandtab           " expand indents into spaces
+set smarttab            " shiftwidth at beginning of lines, tabstop elsewhere
+set hidden              " enable hidden buffers
+set foldmethod=syntax   " fold on indentation
+set showcmd             " show incomplete commands
+" set mouse=a             " MOUSE MOUSE MOUSE oh hell no
 
-set colorcolumn=80
-set tabstop=4 shiftwidth=4 expandtab smarttab
+" double-tab j to bail.
+" inoremap jj <Esc>
 
-let g:lisp_rainbow=1
-let g:syntastic_auto_log_list=1
-set guifont=MonteCarlo\ Regular:h11
-" set guifont=Envy\ Code\ R:h11
-
-" enable hidden buffers
-set hidden
