@@ -11,7 +11,6 @@ fi
 
 # User specific environment and startup programs
 
-PLAN9=/usr/local/plan9
-PATH=$HOME/bin:$HOME/Code/ducttape:$PATH:$PLAN9/bin
+PATH=$HOME/bin:$HOME/Code/ducttape:$PATH
 
 export PLAN9 PATH

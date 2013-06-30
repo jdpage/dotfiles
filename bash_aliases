@@ -34,3 +34,6 @@ alias profileme="history | awk '{print \$2}' | awk 'BEGIN{FS=\"|\"}{print \$1}' 
 # alias backup="rsync -avh --delete --progress --stats --exclude 'Disks' $HOME/ /media/backup-linux/jdpage/"
 
 alias urxvt="urxvt256c"
+
+alias vim="gvim"
+alias cvim="/usr/bin/vim"
