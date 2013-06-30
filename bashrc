@@ -13,7 +13,7 @@ shopt -s checkwinsize
 
 # PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;32m\]$(__git_ps1 ":%s")$(hg-ps1)\[\e[1;30m\]]\$\[\e[0m\] '
 #PS1='\[\e[1;30m\][\[\e[1;31m\]\[$(printf "%.*s%.*s" $? $? $? " ")\[\e[1;30m\]\u@\h \[\e[1;37m\]$(shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
-PS1='\[\e[1;30m\][\[\e[1;30m\]\u@\[\e[1;32m\]\h \[\e[1;37m\]$($HOME/dotfiles/shrinkpath "\w")\[\e[1;30m\]]\$\[\e[0m\] '
+PS1='\[\e[1;32m\][\u@\[\e[0;33m\]\h \[\e[1;32m\]$($HOME/dotfiles/shrinkpath "\w")\[\e[1;32m\]]\$\[\e[0m\] '
 
 GPG_TTY=`tty` 
 export GPG_TTY 
@@ -27,7 +27,7 @@ export GPG_TTY
 #esac
 
 if [ "$TERM" = "xterm" ]; then
-    export TERM="xterm-256color" # stupid vte
+    export TERM="xterm-color" # stupid vte
 fi
 
 # Alias definitions.
@@ -46,7 +46,7 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-EDITOR=vim
+EDITOR="gvim -f"
 export EDITOR
 set -o vi
 
@@ -64,8 +64,7 @@ fi
 
 if [[ $TERM =~ "256color" ]]; then eval $( $DIRCOLORS -b $HOME/.LS_COLORS ); fi
 
-export PLAN9=/usr/local/plan9
-export PATH=$HOME/.cabal/bin:$PATH:$PLAN9/bin:/usr/local/go/bin
+export PATH=$HOME/.cabal/bin:$PATH:/usr/local/go/bin
 
 eval $(gnome-keyring-daemon --start)
 SSH_ASKPASS=/usr/libexec/openssh/ssh-askpass
