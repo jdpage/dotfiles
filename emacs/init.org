@@ -1,0 +1,584 @@
+#+TITLE: Emacs configuration file
+#+AUTHOR: Jonathan David Page
+#+PROPERTY: header-args:emacs-lisp :tangle yes :noweb tangle
+
+* Init machinery
+** Auto-tangle
+
+All changes should be done in =init.org=, *not* in =init.el=. Changes to
+=init.el= will be overwritten.
+
+We're using lexical binding for the init file, which is specified in a header.
+
+#+BEGIN_SRC emacs-lisp
+;;; -*- lexical-binding: t -*-
+#+END_SRC
+
+After first run, =init.el= should mirror the source blocks in =init.org=. To
+regenerate =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience,
+this is done automatically on saving the buffer.
+
+#+BEGIN_SRC emacs-lisp
+  (defun jdp/tangle-init ()
+    "If the current buffer is 'init.org' the code blocks are
+  tangled, and the tangled file is compiled."
+    (when (equal (buffer-file-name)
+		 (expand-file-name (concat user-emacs-directory "init.org")))
+      ;; Avoid running hooks when tangling
+      (let ((prog-mode-hook nil)
+            (org-confirm-babel-evaluate nil))
+	(org-babel-tangle)
+	(byte-compile-file (concat user-emacs-directory "init.el"))
+        (org-html-export-to-html))))
+
+  (add-hook 'after-save-hook 'jdp/tangle-init)
+#+END_SRC
+
+** Machine-local settings support
+
+Machine-local settings live in a separate file. Load =local.el= if it exists,
+after the init file is complete.
+
+#+BEGIN_SRC emacs-lisp
+  (defun jdp/load-local-init ()
+    (let ((local-file (concat user-emacs-directory "local.el")))
+      (when (file-exists-p local-file)
+	(load-file local-file))))
+
+  (add-hook 'after-init-hook 'jdp/load-local-init)
+#+END_SRC
+
+Additionally, some behavior is macOS-only, so define a convenient constant to
+test against.
+
+#+BEGIN_SRC emacs-lisp
+  (defconst *jdp/is-macos*
+    (memq window-system '(mac ns))
+    "True if Emacs is running under macOS")
+#+END_SRC
+
+The GNU versions of some command-line tools support extra options. We use the
+GNU versions on Linux and Windows, but not macOS.
+
+#+BEGIN_SRC emacs-lisp
+  (defconst *jdp/is-gnu-like*
+    (or (string= "cygwin" system-type)
+	(string= "windows-nt" system-type)
+	(string-prefix-p "gnu" (symbol-name system-type)))
+    "True if we expect GNU-like coreutils")
+#+END_SRC
+
+** Utilities
+
+Some stretches of config consist of miles and miles of =setq= calls. Instead, we
+stuff them into a table, and use these macros to convert them to setq or
+setq-default bindings. The first two columns of the table should be the variable
+name and value, respectively. Additional columns are ignored. Items in the value
+column are interpreted as s-expressions, unless they are wrapped in equals signs.
+
+#+NAME: tt/setq-of-table
+#+BEGIN_SRC emacs-lisp :var table='() :tangle no :results output
+  (dolist (row table)
+    (let* ((name (intern (car row)))
+           (raw-value (cadr row))
+           (value (if (stringp raw-value)
+                      (if (and 
+                           (string-prefix-p "=" raw-value)
+                           (string-suffix-p "=" raw-value))
+                          (substring raw-value 1 -1)
+                        (car (read-from-string raw-value)))
+                    raw-value)))
+      (pp `(setq ,name ,value))))
+#+END_SRC
+
+#+NAME: tt/setq-default-of-table
+#+BEGIN_SRC emacs-lisp :var table='() :tangle no :results output
+  (dolist (row table)
+    (let* ((name (intern (car row)))
+           (raw-value (cadr row))
+           (value (if (stringp raw-value)
+                      (if (and 
+                           (string-prefix-p "=" raw-value)
+                           (string-suffix-p "=" raw-value))
+                          (substring raw-value 1 -1)
+                        (car (read-from-string raw-value)))
+                    raw-value)))
+      (pp `(setq-default ,name ,value))))
+#+END_SRC
+
+A similar macro lets us bulk-enable or bulk-disable modes using a table. The
+first column is the mode to set, the second is 1 or 0 depending on whether we
+want the mode enabled or disabled. Additional columns are ignored.
+
+#+NAME: tt/modes-of-table
+#+BEGIN_SRC emacs-lisp :var table='() :tangle no :results output
+  (dolist (row table)
+    (let* ((name (intern (car row)))
+           (raw-value (cadr row))
+           (value (if (stringp raw-value)
+                      (if (and 
+                           (string-prefix-p "=" raw-value)
+                           (string-suffix-p "=" raw-value))
+                          (substring raw-value 1 -1)
+                        (car (read-from-string raw-value)))
+                    raw-value)))
+      (pp `(,name ,value))))
+#+END_SRC
+
+* Package Management
+
+Use the built-in package manager.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (package-initialize)
+#+END_SRC
+
+Packages are fetched from MELPA or MELPA-Stable.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+#+END_SRC
+
+Sets of packages to be installed are defined in Org tables, where the first
+column of each row is the name of the package to be installed. This section of
+code is run at tangle-time, to search for package tables and collect a full list
+of packages to be installed.
+
+#+NAME: tt/gather-packages
+#+BEGIN_SRC emacs-lisp :tangle no :results output
+  (defun tt/find-package-tables ()
+    (let (pkg-tables)
+      (save-excursion
+        (beginning-of-buffer)
+        (while (re-search-forward "^#\\+name: *\\(.*\\)\n" nil t)
+          (let ((name (match-string-no-properties 1)))
+            (when (string-prefix-p "packages/" name)
+              (princ (format ";; Found package table %s\n" name))
+              (add-to-list 'pkg-tables (org-table-to-lisp))))))
+      pkg-tables))
+
+  (defun tt/remove-header (tbl)
+    (cdr (seq-drop-while #'(lambda (row) (not (eq row 'hline))) tbl)))
+
+  (defun tt/sort-rows (tbl)
+    (seq-uniq (sort tbl #'(lambda (r1 r2) (string< (car r1) (car r2))))
+              #'(lambda (r1 r2) (string= (car r1) (car r2)))))
+
+  (let ((pkg-list (mapcan 'tt/remove-header (tt/find-package-tables))))
+    (princ "(jdp/install-packages\n '(")
+    (dolist (row (tt/sort-rows pkg-list))
+      (let ((pkg (car row))
+            (desc (cadr row)))
+        (princ (format "%-25s  ; %s\n   " pkg desc))))
+    (princ "))\n"))
+#+END_SRC
+
+Here's where gather-packages gets inserted. Also provides a function to install
+a list of packages; it knows how to automatically refresh the package lists
+before trying to install new packages as well.
+
+#+BEGIN_SRC emacs-lisp
+  (defun jdp/install-packages (packages)
+    (let ((to-install (seq-remove 'package-installed-p packages)))
+      (princ (format "%d packages to install\n" (length to-install)))
+      (when (> (length to-install) 0)
+        (package-refresh-contents)
+        (mapc 'package-install to-install))))
+
+  <<tt/gather-packages()>>
+#+END_SRC
+
+* Configuration
+** Input
+
+#+NAME: packages/input
+| Package         | Description             |
+|-----------------+-------------------------|
+| better-defaults | Improved Emacs defaults |
+| which-key       | Keyboard command hints  |
+
+Global variables controlling text input:
+
+#+NAME: vars/input-settings
+| Name                    | Value | Description                    |
+|-------------------------+-------+--------------------------------|
+| default-input-method    | =TeX= | Use TeX-style input by default |
+| recentf-max-saved-items | 100   | Show lots of recent files      |
+| initial-scratch-message | nil   | Clean scratch buffer           |
+
+Buffer-local variables controlling text input:
+
+#+NAME: vars/local-input-settings
+| Name               | Value         | Description                  |
+|--------------------+---------------+------------------------------|
+| fill-column        | 80            | Maximum line width           |
+| truncate-lines     | nil           | Visually wrap too-long lines |
+| indent-tabs-mode   | nil           | Use spaces, not tabs         |
+| auto-fill-function | 'do-auto-fill | Auto-fill everywhere         |
+
+Modes that need to be enabled/disabled:
+
+#+NAME: modes/input
+| Mode                  | Flag | Description              |
+|-----------------------+------+--------------------------|
+| global-company-mode   |    1 | Auto-complete everywhere |
+| recentf-mode          |    1 | Recently opened files    |
+| which-key-mode        |    1 | Keybindings guide        |
+| delete-selection-mode |    1 | Replace selected text    |
+
+#+BEGIN_SRC emacs-lisp
+  <<tt/setq-of-table(table=vars/input-settings)>>
+  <<tt/setq-default-of-table(table=vars/local-input-settings)>>
+  <<tt/modes-of-table(table=modes/input)>>
+#+END_SRC
+
+Use =utf-8= by default, because it's the 21st century and all.
+
+#+BEGIN_SRC emacs-lisp
+  (set-language-environment "UTF-8")
+#+END_SRC
+
+** Visual Experience
+
+#+NAME: packages/visual
+| Package       | Description    |
+|---------------+----------------|
+| powerline     | Nicer modeline |
+| gruvbox-theme | A nice theme   |
+
+The following settings are here, set to their default values, because I'm still
+playing with these settings.
+
+#+NAME: vars/exp-settings
+| Name                    | Value |
+|-------------------------+-------|
+| inhibit-startup-message | nil   |
+| global-linum-mode       | nil   |
+
+#+BEGIN_SRC emacs-lisp
+  <<tt/setq-of-table(table=vars/exp-settings)>>
+#+END_SRC
+
+Font face and size.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'default-frame-alist
+               '(font . "Fantasque Sans Mono-10"))
+#+END_SRC
+
+Because I have a mixed-DPI setup and I'm under X, I need to be able to rescale
+an entire Emacs frame at a time on the fly, so I also include keybindings for
+that. This can be hooked into for e.g. fixing treemacs icons.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar jdp/toggle-face-height-hook nil
+    "Called when toggling the face height for mixed-DPI setups")
+
+  (defun jdp/current-default-face-height ()
+    (face-attribute 'default :height (selected-frame)))
+
+  (defun jdp/toggle-face-height ()
+    (interactive)
+
+    (set-face-attribute 'default (selected-frame) :height
+                        (if (> (jdp/current-default-face-height) 80) 60 100))
+    (run-hooks 'jdp/toggle-face-height-hook))
+
+  (global-set-key (kbd "C-x T s") 'jdp/toggle-face-height)
+#+END_SRC
+
+Theme selections. I prefer the soft gruvbox themes, but the medium ones are also
+fine. Hard is a bit harsh for my tastes. See [[Theme Handling]] for the handling of
+these variables.
+
+#+NAME: vars/theme-settings
+| Name             | Value               | Description              |
+|------------------+---------------------+--------------------------|
+| my-light-theme   | 'gruvbox-light-soft | Light-background theme   |
+| my-dark-theme    | 'gruvbox-dark-soft  | Dark-background theme    |
+| my-startup-theme | my-dark-theme       | Theme to load on startup |
+
+#+BEGIN_SRC emacs-lisp
+  <<tt/setq-of-table(table=vars/theme-settings)>>
+#+END_SRC
+
+Use powerline to customize the modeline.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'powerline)
+  (powerline-default-theme)
+#+END_SRC
+
+Modes that need to be enabled/disabled:
+
+#+NAME: modes/visual
+| Mode                         | Flag | Description                     |
+|------------------------------+------+---------------------------------|
+| tool-bar-mode                |    0 | No toolbars                     |
+| scroll-bar-mode              |    0 | No scrollbars                   |
+| blink-cursor-mode            |    0 | No blinking cursor              |
+| show-paren-mode              |    1 | Highlight matching parentheses  |
+| global-prettify-symbols-mode |    1 | Greek letters should look greek |
+
+#+BEGIN_SRC emacs-lisp
+  <<tt/modes-of-table(table=modes/visual)>>
+#+END_SRC
+
+*** Theme Handling
+
+This provides a function which observes the current theme, and toggles it to
+light if it is dark.
+
+#+BEGIN_SRC emacs-lisp
+  (defun jdp/toggle-theme ()
+    (interactive)
+
+    (let ((is-dark (seq-contains custom-enabled-themes my-dark-theme)))
+      (dolist (theme custom-enabled-themes)
+	(disable-theme theme))
+      (load-theme (if is-dark my-light-theme my-dark-theme) t)))
+#+END_SRC
+
+If we're using a windowing system, then apply the startup theme and bind a
+toggle key.
+
+#+BEGIN_SRC emacs-lisp
+  (when window-system
+    (global-set-key (kbd "C-x T t") 'jdp/toggle-theme)
+    (load-theme my-startup-theme t))
+#+END_SRC
+
+** Safety & Backups
+
+By default Emacs scatters backup files all over the shop. Instead, we'd prefer
+for them to all be in one directory. This also frees us up to keep multiple
+versions of files.
+
+#+NAME: vars/backup-settings
+| Name                      | Value     | Description                               |
+|---------------------------+-----------+-------------------------------------------|
+| my-backup-directory       | =backups= | Backup directory relative to .emacs.d     |
+| delete-by-moving-to-trash | t         | Delete files to trash instead of oblivion |
+| make-backup-files         | t         | Back up file first time it's saved        |
+| backup-by-copying         | t         | Enable safer backup methods               |
+| version-control           | t         | Version numbers for backup files          |
+| delete-old-versions       | t         | Automatically manage excess backups       |
+| kept-old-versions         | 6         | # of oldest versions to keep              |
+| kept-new-versions         | 9         | # of newest versions to keep              |
+
+#+BEGIN_SRC emacs-lisp 
+  <<tt/setq-of-table(table=vars/backup-settings)>>
+  (setq my-backup-path (concat user-emacs-directory my-backup-directory))
+  (when (not (file-exists-p my-backup-path))
+    (make-directory my-backup-path t))
+  (setq backup-directory-alist `(("." . ,my-backup-path)))
+#+END_SRC
+
+** Platform Fixes
+
+#+NAME: packages/macos
+| Package              | Description                             |
+|----------------------+-----------------------------------------|
+| exec-path-from-shell | Auto-fixup exec-path by examining shell |
+
+On macOS, GUI applications tend to miss out on environment variables. We can
+pull these from the shell instead.
+
+#+BEGIN_SRC emacs-lisp
+  (when *jdp/is-macos* (exec-path-from-shell-initialize))
+#+END_SRC
+
+We only expect GNU coreutils on some systems. Tell Emacs about systems where we
+don't think we'll have them.
+
+#+BEGIN_SRC emacs-lisp
+  (when (not *jdp/is-gnu-like*)
+    (setq dired-use-ls-dired nil))
+#+END_SRC
+
+** Projectile
+
+#+NAME: packages/projectile
+| Package    | Description                |
+|------------+----------------------------|
+| projectile | Project handling framework |
+
+#+BEGIN_SRC emacs-lisp
+  (require 'projectile)
+  (projectile-mode 1)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+END_SRC
+
+** Helm
+
+#+NAME: packages/helm
+| Package         | Description                 |
+|-----------------+-----------------------------|
+| helm            | Completion framework        |
+| helm-projectile | Integrate with =projectile= |
+
+Helm provides a much nicer environment for searching and completing text, files,
+etc.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'helm-config)
+  (require 'helm-projectile)
+#+END_SRC
+
+Some built-in Emacs commands can be replaced with Helm versions.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "M-x") #'helm-M-x)
+  (global-set-key (kbd "C-x r b") #'helm-filtered-bookmarks)
+  (global-set-key (kbd "C-x C-f") #'helm-find-files)
+#+END_SRC
+
+Globals controlling Helm behavior:
+
+#+NAME: vars/helm-settings
+| Name                                  | Value                            | Description           |
+|---------------------------------------+----------------------------------+-----------------------|
+| helm-mode-fuzzy-match                 | t                                | Enable fuzzy matching |
+| helm-completion-in-region-fuzzy-match | t                                | ...                   |
+| helm-always-two-windows               | nil                              | Force Helm to always  |
+| helm-display-buffer-default-height    | 23                               | show up at the bottom |
+| helm-default-display-buffer-functions | '(display-buffer-in-side-window) | of the screen.        |
+| projectile-completion-system          | 'helm                            |                       |
+
+#+BEGIN_SRC emacs-lisp
+  <<tt/setq-of-table(table=vars/helm-settings)>>
+  (helm-mode 1)
+  (helm-projectile-on)
+  (helm-adaptive-mode 1)
+#+END_SRC
+
+** Treemacs
+
+#+NAME: packages/treemacs
+| Package             | Description                 |
+|---------------------+-----------------------------|
+| treemacs            | Nice file-browsing tree     |
+| treemacs-projectile | Integrate with =projectile= |
+| treemacs-magit      | Integrate with =magit=      |
+
+#+BEGIN_SRC emacs-lisp
+  (require 'treemacs)
+  (treemacs-git-mode 'deferred)
+  (treemacs-filewatch-mode 1)
+#+END_SRC
+
+Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if
+necessary. Supplying the universal argument toggles the treemacs buffer instead.
+
+#+BEGIN_SRC emacs-lisp
+  (defun jdp/treemacs (arg)
+    (interactive "P")
+    (if (> (prefix-numeric-value arg) 1)
+	(treemacs)
+      (treemacs-select-window)))
+
+  (global-set-key (kbd "C-x t") 'jdp/treemacs)
+#+END_SRC
+
+Rescale treemacs icons when we toggle the font-size for mixed-DPI.
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'jdp/toggle-face-height-hook
+            #'(lambda ()
+                (treemacs-resize-icons
+                 (if (> (jdp/current-default-face-height) 80) 22 11))))
+#+END_SRC
+
+Treemacs defaults to a double-click for actions, but I prefer a single-click.
+
+#+BEGIN_SRC emacs-lisp
+  (define-key treemacs-mode-map [mouse-1] #'treemacs-single-click-expand-action)
+#+END_SRC
+
+Open Treemacs on startup.
+
+#+BEGIN_SRC emacs-lisp
+  (treemacs-select-window)
+#+END_SRC
+
+* Tools
+** Org
+
+#+NAME: packages/org
+| Package | Description    |
+|---------+----------------|
+| htmlize | Export to HTML |
+
+** Git
+
+#+NAME: packages/git
+| Package           | Description           |
+|-------------------+-----------------------|
+| magit             | Magical Git porcelain |
+| git-gutter-fringe | Git status indicators |
+
+#+BEGIN_SRC emacs-lisp
+  (require 'magit)
+  (global-set-key (kbd "C-x g") 'magit-status)
+  (global-git-gutter-mode 1)
+#+END_SRC
+
+* Languages
+** MATLAB
+
+#+NAME: packages/matlab
+| Package     | Description              |
+|-------------+--------------------------|
+| matlab-mode | MATLAB development tools |
+
+Normally, =.m= files are treated as Objective-C files. I don't really do any
+ObjC, so they're going to be treated as MATLAB files instead.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'auto-mode-alist
+    '("\\.m$" . matlab-mode))
+#+END_SRC
+
+#+NAME: vars/matlab-settings
+| Name                   | Value                                 | Description                      |
+|------------------------+---------------------------------------+----------------------------------|
+| matlab-indent-function | t                                     | TODO: figure out what this does? |
+| matlab-shell-command   | =/usr/local/MATLAB/R2018b/bin/matlab= | Path to matlab shell             |
+
+#+BEGIN_SRC emacs-lisp
+  <<tt/setq-of-table(table=vars/matlab-settings)>>
+#+END_SRC
+
+** Python
+
+#+NAME: packages/python
+| Package  | Description                 |
+|----------+-----------------------------|
+| elpy     | Python development tools    |
+| flycheck | As-you-type syntax checking |
+| blacken  | Auto-format Python files    |
+
+Python development mode is based on elpy.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'elpy)
+  (elpy-enable)
+#+END_SRC
+
+Replace flymake with flycheck, to get as-you-type syntax checking.
+
+#+BEGIN_SRC emacs-lisp
+  (when (require 'flycheck nil t)
+    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+    (add-hook 'elpy-mode-hook 'flycheck-mode))
+#+END_SRC
+
+Automatically format Python code on save using the Black formatter.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'blacken)
+  (add-hook 'elpy-mode-hook 'blacken-mode)
+#+END_SRC
