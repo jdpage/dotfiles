@@ -167,12 +167,10 @@ of packages to be installed.
               #'(lambda (r1 r2) (string= (car r1) (car r2)))))
 
   (let ((pkg-list (mapcan 'tt/remove-header (tt/find-package-tables))))
-    (princ "(jdp/install-packages\n '(")
     (dolist (row (tt/sort-rows pkg-list))
       (let ((pkg (car row))
             (desc (cadr row)))
-        (princ (format "%-25s  ; %s\n   " pkg desc))))
-    (princ "))\n"))
+        (princ (format "%-25s  ; %s\n" pkg desc)))))
 #+END_SRC
 
 Here's where gather-packages gets inserted. Also provides a function to install
@@ -187,17 +185,33 @@ before trying to install new packages as well.
         (package-refresh-contents)
         (mapc 'package-install to-install))))
 
-  <<tt/gather-packages()>>
+  (jdp/install-packages '(use-package
+                          <<tt/gather-packages()>>))
 #+END_SRC
 
 * Configuration
+** Evil
+
+#+NAME: packages/evil
+| Package | Description         |
+|---------+---------------------|
+| evil    | Extensible vi layer |
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :demand t
+    :config
+    (evil-mode 1))
+#+END_SRC
+
 ** Input
 
 #+NAME: packages/input
-| Package         | Description             |
-|-----------------+-------------------------|
-| better-defaults | Improved Emacs defaults |
-| which-key       | Keyboard command hints  |
+| Package         | Description                |
+|-----------------+----------------------------|
+| better-defaults | Improved Emacs defaults    |
+| which-key       | Keyboard command hints     |
+| smartparens     | Smarter delimiter handling |
 
 Global variables controlling text input:
 
@@ -221,14 +235,16 @@ Buffer-local variables controlling text input:
 Modes that need to be enabled/disabled:
 
 #+NAME: modes/input
-| Mode                  | Flag | Description              |
-|-----------------------+------+--------------------------|
-| global-company-mode   |    1 | Auto-complete everywhere |
-| recentf-mode          |    1 | Recently opened files    |
-| which-key-mode        |    1 | Keybindings guide        |
-| delete-selection-mode |    1 | Replace selected text    |
+| Mode                    | Flag | Description                        |
+|-------------------------+------+------------------------------------|
+| global-company-mode     |    1 | Auto-complete everywhere           |
+| recentf-mode            |    1 | Recently opened files              |
+| which-key-mode          |    1 | Keybindings guide                  |
+| delete-selection-mode   |    1 | Replace selected text              |
+| global-auto-revert-mode |    1 | Automatically reload changed files |
 
 #+BEGIN_SRC emacs-lisp
+  (require 'smartparens-config)
   <<tt/setq-of-table(table=vars/input-settings)>>
   <<tt/setq-default-of-table(table=vars/local-input-settings)>>
   <<tt/modes-of-table(table=modes/input)>>
@@ -410,6 +426,7 @@ don't think we'll have them.
   (projectile-mode 1)
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-discover-projects-in-search-path)
 #+END_SRC
 
 ** Helm
@@ -466,6 +483,7 @@ Globals controlling Helm behavior:
 
 #+BEGIN_SRC emacs-lisp
   (require 'treemacs)
+  (require 'treemacs-projectile)
   (treemacs-git-mode 'deferred)
   (treemacs-filewatch-mode 1)
 #+END_SRC
@@ -581,4 +599,91 @@ Automatically format Python code on save using the Black formatter.
 #+BEGIN_SRC emacs-lisp
   (require 'blacken)
   (add-hook 'elpy-mode-hook 'blacken-mode)
+#+END_SRC
+
+** TODO Ocaml
+
+#+NAME: packages/ocaml
+| Package        | Description     |
+|----------------+-----------------|
+| company        | Auto-complete   |
+| flycheck       | Syntax checking |
+| flycheck-ocaml |                 |
+| ggtags         |                 |
+| helm-gtags     |                 |
+| merlin         |                 |
+| ocp-indent     |                 |
+| smartparens    |                 |
+| tuareg         |                 |
+| utop           |                 |
+
+#+BEGIN_SRC emacs-lisp
+  (defun jdp/ocaml/init-opam ()
+    (if (executable-find "opam")
+        (let ((share (string-trim-right
+                      (with-output-to-string
+                        (with-current-buffer
+                            standard-output
+                          (process-file
+                           shell-file-name nil '(t nil) nil shell-command-switch
+                           "opam config var share"))))))
+          (cond ((string= "" share)
+                 (message "warning: `%s' output empty string." "opam config var share"))
+                ((not (file-directory-p share))
+                 (message "%s" "warning: opam share directory does not exist."))
+                (t (setq opam-share share
+                         opam-load-path (concat share "/emacs/site-lisp"))
+                   (add-to-list 'load-path opam-load-path))))
+      (unless (executable-find "ocamlmerlin")
+        (message "warning: cannot find `%s' or `%s' executable." "opam" "merlin"))))
+
+
+  (use-package tuareg
+    :mode (("\\.ml[ily]?$" . tuareg-mode)
+           ("\\.topml$" . tuareg-mode))
+    :init
+    (progn
+      (jdp/ocaml/init-opam)
+      (add-hook 'tuareg-mode-hook 'company-mode)
+      (add-hook 'tuareg-mode-hook 'flycheck-mode)
+      (dolist (ext '(".cmo" ".cmx" ".cma" ".cmxa" ".cmi" ".cmxs" ".cmt"
+                     ".cmti" ".annot"))
+        (add-to-list 'completion-ignored-extensions ext))))
+
+  (use-package merlin
+    :hook (tuareg-mode . merlin-mode)
+    :init
+    (progn
+      (add-to-list 'company-backends 'merlin-company-backend)))
+
+  (use-package ocp-indent
+    :hook (tuareg-mode . ocp-indent-caml-mode-setup))
+
+  (with-eval-after-load 'smartparens
+    (sp-local-pair 'tuareg-mode "'" nil :actions nil)
+    (sp-local-pair 'tuareg-mode "`" nil :actions nil))
+
+  (use-package utop
+    :hook (tuareg-mode . utop-minor-mode)
+    :config
+    (progn
+      (if (executable-find "opam")
+          (setq utop-command "opam config exec -- utop -emacs")
+        (message "warning: cannot find `opam' executable."))))
+
+  (use-package flycheck-ocaml
+    :after (flycheck merlin)
+    :config
+    (progn
+      (setq merlin-error-after-save nil)
+      (flycheck-ocaml-setup)))
+
+#+END_SRC
+
+Register a projectile project type for Dune.
+
+#+BEGIN_SRC emacs-lisp
+  (projectile-register-project-type 'dune '("dune-project")
+                                    :compile "dune build"
+                                    :test "dune runtest")
 #+END_SRC
