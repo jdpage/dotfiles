@@ -29,11 +29,11 @@ in Emacs getting stuck on the byte-compiled version.
     "If the current buffer is 'init.org' the code blocks are
   tangled, and the tangled file is compiled."
     (when (equal (buffer-file-name)
-		 (expand-file-name (concat user-emacs-directory "init.org")))
+                 (expand-file-name (concat user-emacs-directory "init.org")))
       ;; Avoid running hooks when tangling
       (let ((prog-mode-hook nil)
             (org-confirm-babel-evaluate nil))
-	(org-babel-tangle)
+        (org-babel-tangle)
         (org-html-export-to-html))))
 
   (add-hook 'after-save-hook 'my/tangle-init)
@@ -118,7 +118,7 @@ first.
 
 #+BEGIN_SRC emacs-lisp
   (use-package dash :config (dash-enable-font-lock))
-  (use-package diminish)
+  (use-package delight)
 #+END_SRC
 
 ** Platform Fixes
@@ -187,17 +187,27 @@ Instead of instantly consigning files to oblivion, move them to the trash.
 #+END_SRC
 
 ** Visual Experience
-   
+
 #+BEGIN_SRC emacs-lisp
+  (setq-default show-trailing-whitespace t)
   (setq inhibit-startup-message t)
   (setq global-linum-mode nil)  ; maybe?
 #+END_SRC
-   
+
 Font face and size. Let me tell you how much I love this font.
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'default-frame-alist
                '(font . "Fantasque Sans Mono-10"))
+#+END_SRC
+
+Display emojis! These are crucial.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq emojify-emoji-styles 'unicode)
+  (setq emojify-display-style 'image)
+  (use-package emojify
+    :hook (after-init . global-emojify-mode))
 #+END_SRC
 
 Modes that need to be enabled/disabled:
@@ -228,6 +238,10 @@ They're better.
   (setq-default truncate-lines nil)  ; visual wrap
   (setq-default auto-fill-function 'do-auto-fill)
   (fset 'yes-or-no-p 'y-or-n-p)  ; laziness enhancer
+
+  (use-package emacs
+    :delight
+    (auto-fill-function " ⭤"))
 
   (delete-selection-mode 1)
   (global-auto-revert-mode 1)
@@ -260,6 +274,7 @@ Use =utf-8= by default, because it's the 21st century and all.
 
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
+    :delight (flycheck-mode " 👁")
     :commands flycheck-mode)
 #+END_SRC
 
@@ -267,6 +282,7 @@ Use =utf-8= by default, because it's the 21st century and all.
 
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
+    :delight which-key-mode
     :config (which-key-mode 1))
 #+END_SRC
 
@@ -340,12 +356,19 @@ toggle key.
 
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
-    :diminish undo-tree-mode
+    :delight undo-tree-mode
     :config
     (progn
       (global-undo-tree-mode)
       (setq undo-tree-visualizer-timestamps t)
       (setq undo-tree-visualizer-diff t)))
+#+END_SRC
+
+** Window Management
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+    :bind ("M-o" . ace-window))
 #+END_SRC
 
 ** Evil
@@ -359,8 +382,25 @@ toggle key.
 ** Projectile
 
 #+BEGIN_SRC emacs-lisp
+  (setq my-project-type-glyph-alist
+     '((nil . "Ø")
+       (generic . "*")
+       (cmake . "▲")
+       (dune . "🏜")))
+
+  (defun my/project-type-glyph ()
+    (let ((type (projectile-project-type)))
+      (cdr
+        (or (assoc type my-project-type-glyph-alist)
+            (cons type type)))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package projectile
+    :demand
     :after (helm)
+    :delight (projectile-mode
+              (:eval (format " 🚀:%s" (my/project-type-glyph))))
     :bind-keymap ("C-c p" . projectile-command-map)
     :config
     (progn
@@ -370,10 +410,10 @@ toggle key.
 #+END_SRC
 
 ** Helm
-   
+
 #+BEGIN_SRC emacs-lisp
   (use-package helm
-    :diminish helm-mode
+    :delight helm-mode
     :demand t
     :init
     (progn
@@ -401,7 +441,7 @@ toggle key.
 #+END_SRC
 
 ** Treemacs
-   
+
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs
     :config
@@ -420,6 +460,11 @@ toggle key.
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs-magit
     :after (treemacs magit))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package treemacs-evil
+    :after (treemacs evil))
 #+END_SRC
 
 Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if
@@ -450,6 +495,34 @@ Open Treemacs on startup automatically.
   (treemacs-select-window)
 #+END_SRC
 
+** TRAMP
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'tramp-default-proxies-alist
+               '("\\.caverns\\.metaceptsystems\\.com\\'" nil
+                 "/ssh:jdpage@vpn.cumulus.metaceptsystems.com:"))
+#+END_SRC
+
+** Code Folding
+
+#+BEGIN_SRC emacs-lisp
+  (use-package origami
+    :after evil
+    :config
+    (progn
+      (evil-define-key 'normal origami-mode-map "zo" 'origami-open-node)
+      (evil-define-key 'normal origami-mode-map "zO" 'origami-open-node-recursively)
+      (evil-define-key 'normal origami-mode-map "zc" 'origami-close-node)
+      (evil-define-key 'normal origami-mode-map "zC" 'origami-close-node-recursively)
+      (evil-define-key 'normal origami-mode-map "za" 'origami-forward-toggle-node)
+      (evil-define-key 'normal origami-mode-map "zA" 'origami-recursively-toggle-node)
+      (evil-define-key 'normal origami-mode-map "zv" 'origami-show-node)
+      (evil-define-key 'normal origami-mode-map "zx" 'origami-reset)
+      (evil-define-key 'normal origami-mode-map "zm" 'origami-close-all-nodes)
+      (evil-define-key 'normal origami-mode-map "zr" 'origami-open-all-nodes)
+      (global-origami-mode)))
+#+END_SRC
+
 * Tools
 ** Org
 
@@ -457,15 +530,29 @@ Open Treemacs on startup automatically.
   (use-package htmlize)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (use-package org-d20
+    :commands org-d20-mode)
+#+END_SRC
+
 ** Git
-   
+
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-    :bind ("C-x g" . magit-status))
+    :bind ("C-x g" . magit-status)
+    :config
+    (progn
+      (add-hook 'magit-mode-hook #'(lambda () (origami-mode 0)))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-magit
+    :after (evil magit))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (use-package git-gutter-fringe
+    :delight git-gutter-mode
     :config (global-git-gutter-mode 1))
 #+END_SRC
 
@@ -474,27 +561,27 @@ Open Treemacs on startup automatically.
 
 Normally, =.m= files are treated as Objective-C files. I don't really do any
 ObjC, so they're going to be treated as MATLAB files instead.
-   
+
 #+BEGIN_SRC emacs-lisp
   (use-package matlab-mode
     :mode "\\.m\\'"
     :init
     (progn
       (setq matlab-indent-function t)  ; TODO figure out what this does
-      (setq matlab-shell-command
-            "/usr/local/MATLAB/R2018b/bin/matlab")))
+      (setq matlab-shell-command "/usr/local/bin/matlab")))
 #+END_SRC
 
 ** Python
-   
+
 Python development environment using Elpy.
 
 #+BEGIN_SRC emacs-lisp
   (use-package elpy
+    :delight (elpy-mode " 🐍")
     :config
     (progn
       (elpy-enable)
-      
+
       ;; replace flymake with flycheck
       (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
       (add-hook 'elpy-mode-hook 'flycheck-mode)))
@@ -504,6 +591,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package blacken
+    :delight (blacken-mode " 🏴")
     :hook (elpy-mode . blacken-mode))
 #+END_SRC
 
@@ -552,6 +640,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package merlin
+    :delight (merlin-mode " ⚗‍")
     :hook (tuareg-mode . merlin-mode)
     :init
     (progn
@@ -571,6 +660,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package utop
+    :delight (utop-minor-mode " ⩂")
     :hook (tuareg-mode . utop-minor-mode)
     :config
     (progn
