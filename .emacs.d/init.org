@@ -54,7 +54,8 @@ after the init file is complete.
 
 #+BEGIN_SRC emacs-lisp
   (defun my/load-local-init ()
-    (let ((local-file (concat user-emacs-directory "local.el")))
+    (let ((local-file (concat user-emacs-directory "/local-" (system-name) ".el")))
+      (message local-file)
       (when (file-exists-p local-file)
 	(load-file local-file))))
 
