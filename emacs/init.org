@@ -87,7 +87,6 @@ Use the built-in package manager.
 
 #+BEGIN_SRC emacs-lisp
   (require 'package)
-  (package-initialize)
 #+END_SRC
 
 Packages are fetched from MELPA, MELPA-Stable, or Org.
@@ -103,7 +102,9 @@ Main package management is through =use-package=, but that has to be installed
 first.
 
 #+BEGIN_SRC emacs-lisp
+  (package-initialize)
   (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
     (package-install 'use-package))
   (setq use-package-verbose t)
   (setq use-package-always-ensure t)
@@ -493,14 +494,6 @@ Open Treemacs on startup automatically.
 
 #+BEGIN_SRC emacs-lisp
   (treemacs-select-window)
-#+END_SRC
-
-** TRAMP
-
-#+BEGIN_SRC emacs-lisp
-  ;; (add-to-list 'tramp-default-proxies-alist
-  ;;              '("\\.caverns\\.metaceptsystems\\.com\\'" nil
-  ;;                "/ssh:jdpage@vpn.cumulus.metaceptsystems.com:"))
 #+END_SRC
 
 ** Code Folding
