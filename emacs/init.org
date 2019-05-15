@@ -498,9 +498,9 @@ Open Treemacs on startup automatically.
 ** TRAMP
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'tramp-default-proxies-alist
-               '("\\.caverns\\.metaceptsystems\\.com\\'" nil
-                 "/ssh:jdpage@vpn.cumulus.metaceptsystems.com:"))
+  ;; (add-to-list 'tramp-default-proxies-alist
+  ;;              '("\\.caverns\\.metaceptsystems\\.com\\'" nil
+  ;;                "/ssh:jdpage@vpn.cumulus.metaceptsystems.com:"))
 #+END_SRC
 
 ** Code Folding
@@ -640,7 +640,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package merlin
-    :delight (merlin-mode " ⚗‍")
+    :delight (merlin-mode " ⚗")
     :hook (tuareg-mode . merlin-mode)
     :init
     (progn
@@ -681,9 +681,28 @@ Automatically format Python code on save using the Black formatter.
 Register a projectile project type for Dune.
 
 #+BEGIN_SRC emacs-lisp
+  (use-package dune)
+
   (with-eval-after-load 'projectile
     (projectile-register-project-type
      'dune '("dune-project")
      :compile "dune build"
      :test "dune runtest"))
+#+END_SRC
+
+** Go
+
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package company-go)
+  (use-package go-mode
+    :mode ("\\.go\\'". go-mode)
+    :init
+    (progn
+      (defun my/go-mode-locals ()
+        ;; (set (make-local-variable 'company-backends) '(company-go))
+        ;; (company-mode 1)
+        (setq tab-width 3))
+      (add-hook 'go-mode-hook #'my/go-mode-locals)
+      (add-hook 'go-mode-hook #'flycheck-mode)
+      (add-hook 'before-save-hook #'gofmt-before-save)))
 #+END_SRC
