@@ -1,3 +1,10 @@
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
-PS1='[\u@\h $($HOME/.config/dotfiles/shrinkpath "\w")]$ '
+if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
+	unalias __git_ps1
+	. /usr/share/git-core/contrib/completion/git-prompt.sh
+else
+	alias __git_ps1='echo -n >/dev/null'
+fi
+
+PS1='[\u@\h $($HOME/.config/dotfiles/shrinkpath "\w")$(__git_ps1 " (%s)")]$ '
