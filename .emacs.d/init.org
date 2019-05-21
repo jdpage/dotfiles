@@ -700,3 +700,11 @@ Register a projectile project type for Dune.
       (add-hook 'go-mode-hook #'flycheck-mode)
       (add-hook 'before-save-hook #'gofmt-before-save)))
 #+END_SRC
+
+** CUDA
+
+#+BEGIN_SRC emacs-lisp
+  (use-package cuda-mode
+    :mode (("\\.cu\\'" . cuda-mode)
+           ("\\.cuh\\'" . cuda-mode)))
+#+END_SRC

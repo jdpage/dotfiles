@@ -406,3 +406,7 @@ tangled, and the tangled file is compiled."
     (add-hook 'go-mode-hook #'my/go-mode-locals)
     (add-hook 'go-mode-hook #'flycheck-mode)
     (add-hook 'before-save-hook #'gofmt-before-save)))
+
+(use-package cuda-mode
+  :mode (("\\.cu\\'" . cuda-mode)
+         ("\\.cuh\\'" . cuda-mode)))
