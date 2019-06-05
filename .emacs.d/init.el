@@ -100,7 +100,7 @@ tangled, and the tangled file is compiled."
 (scroll-bar-mode 0)    ; no scrollbars
 (blink-cursor-mode 0)  ; no blinking cursor
 (show-paren-mode 1)
-(global-prettify-symbols-mode 1)
+(global-prettify-symbols-mode 0)
 
 (use-package better-defaults)
 
