@@ -708,3 +708,10 @@ Register a projectile project type for Dune.
     :mode (("\\.cu\\'" . cuda-mode)
            ("\\.cuh\\'" . cuda-mode)))
 #+END_SRC
+
+** fish shell
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fish-mode
+    :mode (("\\.fish\\'" . fish-mode)))
+#+END_SRC

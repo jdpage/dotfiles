@@ -410,3 +410,6 @@ tangled, and the tangled file is compiled."
 (use-package cuda-mode
   :mode (("\\.cu\\'" . cuda-mode)
          ("\\.cuh\\'" . cuda-mode)))
+
+(use-package fish-mode
+  :mode (("\\.fish\\'" . fish-mode)))
