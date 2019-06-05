@@ -45,7 +45,7 @@ end
 function fish_greeting
     if type -q fortune
         if type -q cowsay
-            fortune -n 500 -s -a | cowsay -n
+            fortune -n 500 -s -a | cowsay -W 72
         else
             fortune -n 500
         end
