@@ -3,6 +3,7 @@ alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 # Local paths
 set -x PATH $PATH "$HOME/.local/bin" "$HOME/bin"
+set -x PATH $PATH "/usr/sbin"
 
 # pyenv stuff
 set -x PATH "$HOME/.pyenv/bin" $PATH
