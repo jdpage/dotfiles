@@ -1,6 +1,9 @@
 # Helper for working with dotfile version control
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
+# Set default umask
+umask 0002
+
 # Local paths
 set -x PATH $PATH "$HOME/.local/bin" "$HOME/bin"
 set -x PATH $PATH "/usr/sbin"
