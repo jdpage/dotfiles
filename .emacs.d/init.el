@@ -286,6 +286,14 @@ tangled, and the tangled file is compiled."
     (evil-define-key 'normal origami-mode-map "zr" 'origami-open-all-nodes)
     (global-origami-mode)))
 
+(use-package org
+  :init
+  (progn
+    (define-key global-map "\C-cl" 'org-store-link)
+    (define-key global-map "\C-ca" 'org-agenda)
+    (setq org-log-done t)
+    ))
+
 (use-package htmlize)
 
 (use-package org-d20

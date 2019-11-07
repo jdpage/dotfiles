@@ -521,6 +521,16 @@ Open Treemacs on startup automatically.
 ** Org
 
 #+BEGIN_SRC emacs-lisp
+  (use-package org
+    :init
+    (progn
+      (define-key global-map "\C-cl" 'org-store-link)
+      (define-key global-map "\C-ca" 'org-agenda)
+      (setq org-log-done t)
+      ))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package htmlize)
 #+END_SRC
 
