@@ -35,28 +35,26 @@ tangled, and the tangled file is compiled."
       (string-prefix-p "gnu" (symbol-name system-type)))
   "True if we expect GNU-like coreutils")
 
-(require 'package)
-
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
-(setq package-archives
-      '(("org" . "https://orgmode.org/elpa/")
-        ("melpa-stable" . "https://stable.melpa.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")
-        ("gnu" . "https://elpa.gnu.org/packages/")))
-(setq package-archive-priorities
-      '(("org" . 30)
-        ("melpa-stable" . 20)
-        ("melpa" . 10)
-        ("gnu" . 0)))
+(setq straight-use-package-by-default t)
 
-(package-initialize)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                         user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
 (setq use-package-verbose t)
-(setq use-package-always-ensure t)
-(require 'use-package)
+(straight-use-package 'use-package)
 (use-package auto-compile
   :config (auto-compile-on-load-mode))
 (setq load-prefer-newer t)
@@ -293,6 +291,8 @@ tangled, and the tangled file is compiled."
     (evil-define-key 'normal origami-mode-map "zm" 'origami-close-all-nodes)
     (evil-define-key 'normal origami-mode-map "zr" 'origami-open-all-nodes)
     (global-origami-mode)))
+
+(use-package org)
 
 (use-package htmlize)
 
