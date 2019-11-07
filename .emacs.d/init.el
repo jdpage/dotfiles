@@ -37,10 +37,18 @@ tangled, and the tangled file is compiled."
 
 (require 'package)
 
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
+(setq package-archives
+      '(("org" . "https://orgmode.org/elpa/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")
+        ("gnu" . "https://elpa.gnu.org/packages/")))
+(setq package-archive-priorities
+      '(("org" . 30)
+        ("melpa-stable" . 20)
+        ("melpa" . 10)
+        ("gnu" . 0)))
 
 (package-initialize)
 (unless (package-installed-p 'use-package)
