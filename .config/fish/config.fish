@@ -9,18 +9,24 @@ set -x PATH $PATH "$HOME/.local/bin" "$HOME/bin"
 set -x PATH $PATH "/usr/sbin"
 
 # pyenv stuff
-set -x PATH "$HOME/.pyenv/bin" $PATH
-pyenv init - | source
+if test -d "$HOME/.pyenv/bin"
+    set -x PATH "$HOME/.pyenv/bin" $PATH
+    pyenv init - | source
+end
 
 # poetry stuff
-set -x PATH "$HOME/.poetry/bin" $PATH
+if test -d "$HOME/.poetry/bin"
+    set -x PATH "$HOME/.poetry/bin" $PATH
+end
 
 # opam configuration
 source /home/jdpage/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
 
 # go stuff
-set -x GOPATH "$HOME/go"
-set -x PATH "$GOPATH/bin" $PATH
+if type -q go
+    set -x GOPATH "$HOME/go"
+    set -x PATH "$GOPATH/bin" $PATH
+end
 
 # Fish git prompt
 set __fish_git_prompt_showdirtystate 'yes'
