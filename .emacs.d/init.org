@@ -84,32 +84,39 @@ GNU versions on Linux and Windows, but not macOS.
 
 * Package Management
 
-Use the built-in package manager.
+First, we have to give GNUTLS some magic options so we can connect to ELPA.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'package)
+  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 #+END_SRC
 
-Packages are fetched from MELPA, MELPA-Stable, or Org.
+Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine
+experience.
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives
-               '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+  (setq straight-use-package-by-default t)
+
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                           user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
 Main package management is through =use-package=, but that has to be installed
 first.
 
 #+BEGIN_SRC emacs-lisp
-  (package-initialize)
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
   (setq use-package-verbose t)
-  (setq use-package-always-ensure t)
-  (require 'use-package)
+  (straight-use-package 'use-package)
   (use-package auto-compile
     :config (auto-compile-on-load-mode))
   (setq load-prefer-newer t)
@@ -265,7 +272,7 @@ Use =utf-8= by default, because it's the 21st century and all.
 #+END_SRC
 
 ** Autocomplete
-   
+
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :config
@@ -322,7 +329,7 @@ that. This can be hooked into for e.g. fixing treemacs icons.
 #+END_SRC
 
 ** Color scheme
-   
+
 #+BEGIN_SRC emacs-lisp
   (setq my-light-theme 'gruvbox-light-soft)
   (setq my-dark-theme 'gruvbox-dark-soft)
