@@ -260,6 +260,7 @@ Use =utf-8= by default, because it's the 21st century and all.
 
 #+BEGIN_SRC emacs-lisp
   (set-language-environment "UTF-8")
+  (setq-default buffer-file-coding-system 'utf-8-unix)
 #+END_SRC
 
 ** TODO Smartparens

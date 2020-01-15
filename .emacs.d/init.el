@@ -126,6 +126,7 @@ tangled, and the tangled file is compiled."
 (global-auto-revert-mode 1)
 
 (set-language-environment "UTF-8")
+(setq-default buffer-file-coding-system 'utf-8-unix)
 
 (use-package smartparens
   :config
