@@ -212,11 +212,16 @@ Font face and size. Let me tell you how much I love this font.
 
 Display emojis! These are crucial.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (setq emojify-emoji-styles 'unicode)
-  (setq emojify-display-style 'image)
+#+BEGIN_SRC emacs-lisp
   (use-package emojify
-    :hook (after-init . global-emojify-mode))
+      :init
+      (progn
+        (setq emojify-emoji-styles '(unicode))
+        (setq emojify-display-style 'image))
+      :config
+      (progn
+        (global-emojify-mode 1)
+        (global-emojify-mode-line-mode 1)))
 #+END_SRC
 
 Modes that need to be enabled/disabled:
@@ -250,7 +255,7 @@ They're better.
 
   (use-package emacs
     :delight
-    (auto-fill-function " ⭤"))
+    (auto-fill-function " ↔"))
 
   (delete-selection-mode 1)
   (global-auto-revert-mode 1)
@@ -671,7 +676,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package utop
-    :delight (utop-minor-mode " ⩂")
+    :delight (utop-minor-mode " ū")
     :hook (tuareg-mode . utop-minor-mode)
     :config
     (progn

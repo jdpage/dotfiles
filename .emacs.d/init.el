@@ -102,6 +102,16 @@ tangled, and the tangled file is compiled."
 (add-to-list 'default-frame-alist
              '(font . "Fantasque Sans Mono-10"))
 
+(use-package emojify
+    :init
+    (progn
+      (setq emojify-emoji-styles '(unicode))
+      (setq emojify-display-style 'image))
+    :config
+    (progn
+      (global-emojify-mode 1)
+      (global-emojify-mode-line-mode 1)))
+
 (tool-bar-mode 0)      ; no toolbars
 (scroll-bar-mode 0)    ; no scrollbars
 (blink-cursor-mode 0)  ; no blinking cursor
@@ -120,7 +130,7 @@ tangled, and the tangled file is compiled."
 
 (use-package emacs
   :delight
-  (auto-fill-function " ⭤"))
+  (auto-fill-function " ↔"))
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
@@ -385,7 +395,7 @@ tangled, and the tangled file is compiled."
   (sp-local-pair 'tuareg-mode "`" nil :actions nil))
 
 (use-package utop
-  :delight (utop-minor-mode " ⩂")
+  :delight (utop-minor-mode " ū")
   :hook (tuareg-mode . utop-minor-mode)
   :config
   (progn
