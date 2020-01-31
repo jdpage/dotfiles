@@ -38,6 +38,7 @@
  ("hydra" . "e3beffdd804b87b20c87d7fb8e37d6eee2b0d763")
  ("let-alist" . "ef3c02fa292b6e32769945bbbfb7f2e5ac574b64")
  ("magit" . "e5e475c61ce568a7e20ed8f795fa343a93632871")
+ ("markdown-mode" . "e9dff50d572caa96b68a7466c18c97a8d6ed651c")
  ("matlab-mode" . "b3057e8ca6a8703bf59ba365521cf37ad25c700b")
  ("melpa" . "e1a9badd46f8900a1d6355cb2c703788ed66e8fb")
  ("merlin" . "f6954e953b4168e6a798a0255d6a2dfbd868a3c6")
