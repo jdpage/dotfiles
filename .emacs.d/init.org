@@ -203,6 +203,16 @@ Instead of instantly consigning files to oblivion, move them to the trash.
   (setq global-linum-mode nil)  ; maybe?
 #+END_SRC
 
+Modes that need to be enabled/disabled:
+
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode 0)      ; no toolbars
+  (scroll-bar-mode 0)    ; no scrollbars
+  (blink-cursor-mode 0)  ; no blinking cursor
+  (show-paren-mode 1)
+  (global-prettify-symbols-mode 0)
+#+END_SRC
+
 Font face and size. Let me tell you how much I love this font.
 
 #+BEGIN_SRC emacs-lisp
@@ -212,21 +222,16 @@ Font face and size. Let me tell you how much I love this font.
 
 Display emojis! These are crucial.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (setq emojify-emoji-styles 'unicode)
-  (setq emojify-display-style 'image)
-  (use-package emojify
-    :hook (after-init . global-emojify-mode))
-#+END_SRC
-
-Modes that need to be enabled/disabled:
-
 #+BEGIN_SRC emacs-lisp
-  (tool-bar-mode 0)      ; no toolbars
-  (scroll-bar-mode 0)    ; no scrollbars
-  (blink-cursor-mode 0)  ; no blinking cursor
-  (show-paren-mode 1)
-  (global-prettify-symbols-mode 0)
+  (use-package emojify
+      :init
+      (progn
+        (setq emojify-emoji-styles '(unicode))
+        (setq emojify-display-style 'image))
+      :config
+      (progn
+        (global-emojify-mode 1)
+        (global-emojify-mode-line-mode 1)))
 #+END_SRC
 
 ** Better Defaults
@@ -250,7 +255,7 @@ They're better.
 
   (use-package emacs
     :delight
-    (auto-fill-function " ⭤"))
+    (auto-fill-function " \N{LEFT RIGHT ARROW}"))
 
   (delete-selection-mode 1)
   (global-auto-revert-mode 1)
@@ -284,7 +289,7 @@ Use =utf-8= by default, because it's the 21st century and all.
 
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
-    :delight (flycheck-mode " 👁")
+    :delight (flycheck-mode " \N{BUTTERFLY}")
     :commands flycheck-mode)
 #+END_SRC
 
@@ -393,10 +398,10 @@ toggle key.
 
 #+BEGIN_SRC emacs-lisp
   (setq my-project-type-glyph-alist
-     '((nil . "Ø")
-       (generic . "*")
+     '((nil . "\N{NO ENTRY SIGN}")
+       (generic . "\N{GLOBE WITH MERIDIANS}")
        (cmake . "▲")
-       (dune . "🏜")))
+       (dune . "\N{BACTRIAN CAMEL}")))
 
   (defun my/project-type-glyph ()
     (let ((type (projectile-project-type)))
@@ -410,7 +415,7 @@ toggle key.
     :demand
     :after (helm)
     :delight (projectile-mode
-              (:eval (format " 🚀:%s" (my/project-type-glyph))))
+              (:eval (format " \N{ROCKET}\N{MIDDLE DOT}%s" (my/project-type-glyph))))
     :bind-keymap ("C-c p" . projectile-command-map)
     :config
     (progn
@@ -589,7 +594,7 @@ Python development environment using Elpy.
 
 #+BEGIN_SRC emacs-lisp
   (use-package elpy
-    :delight (elpy-mode " 🐍")
+    :delight (elpy-mode " \N{SNAKE}") (highlight-indentation-mode " \N{STRAIGHT RULER}")
     :config
     (progn
       (elpy-enable)
@@ -603,7 +608,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package blacken
-    :delight (blacken-mode " 🏴")
+    :delight (blacken-mode " \N{WAVING BLACK FLAG}")
     :hook (elpy-mode . blacken-mode))
 #+END_SRC
 
@@ -672,7 +677,7 @@ Automatically format Python code on save using the Black formatter.
 
 #+BEGIN_SRC emacs-lisp
   (use-package utop
-    :delight (utop-minor-mode " ⩂")
+    :delight (utop-minor-mode " ū")
     :hook (tuareg-mode . utop-minor-mode)
     :config
     (progn
@@ -732,4 +737,15 @@ Register a projectile project type for Dune.
 #+BEGIN_SRC emacs-lisp
   (use-package fish-mode
     :mode (("\\.fish\\'" . fish-mode)))
+#+END_SRC
+
+** Markdown
+
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
 #+END_SRC

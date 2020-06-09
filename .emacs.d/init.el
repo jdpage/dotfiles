@@ -99,14 +99,24 @@ tangled, and the tangled file is compiled."
 (setq inhibit-startup-message t)
 (setq global-linum-mode nil)  ; maybe?
 
-(add-to-list 'default-frame-alist
-             '(font . "Fantasque Sans Mono-10"))
-
 (tool-bar-mode 0)      ; no toolbars
 (scroll-bar-mode 0)    ; no scrollbars
 (blink-cursor-mode 0)  ; no blinking cursor
 (show-paren-mode 1)
 (global-prettify-symbols-mode 0)
+
+(add-to-list 'default-frame-alist
+             '(font . "Fantasque Sans Mono-10"))
+
+(use-package emojify
+    :init
+    (progn
+      (setq emojify-emoji-styles '(unicode))
+      (setq emojify-display-style 'image))
+    :config
+    (progn
+      (global-emojify-mode 1)
+      (global-emojify-mode-line-mode 1)))
 
 (use-package better-defaults)
 
@@ -120,7 +130,7 @@ tangled, and the tangled file is compiled."
 
 (use-package emacs
   :delight
-  (auto-fill-function " ⭤"))
+  (auto-fill-function " \N{LEFT RIGHT ARROW}"))
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
@@ -137,7 +147,7 @@ tangled, and the tangled file is compiled."
   (global-company-mode))
 
 (use-package flycheck
-  :delight (flycheck-mode " 👁")
+  :delight (flycheck-mode " \N{BUTTERFLY}")
   :commands flycheck-mode)
 
 (use-package which-key
@@ -197,10 +207,10 @@ tangled, and the tangled file is compiled."
   (evil-mode 1))
 
 (setq my-project-type-glyph-alist
-   '((nil . "Ø")
-     (generic . "*")
+   '((nil . "\N{NO ENTRY SIGN}")
+     (generic . "\N{GLOBE WITH MERIDIANS}")
      (cmake . "▲")
-     (dune . "🏜")))
+     (dune . "\N{BACTRIAN CAMEL}")))
 
 (defun my/project-type-glyph ()
   (let ((type (projectile-project-type)))
@@ -212,7 +222,7 @@ tangled, and the tangled file is compiled."
   :demand
   :after (helm)
   :delight (projectile-mode
-            (:eval (format " 🚀:%s" (my/project-type-glyph))))
+            (:eval (format " \N{ROCKET}\N{MIDDLE DOT}%s" (my/project-type-glyph))))
   :bind-keymap ("C-c p" . projectile-command-map)
   :config
   (progn
@@ -327,7 +337,7 @@ tangled, and the tangled file is compiled."
     (setq matlab-shell-command "/usr/local/bin/matlab")))
 
 (use-package elpy
-  :delight (elpy-mode " 🐍")
+  :delight (elpy-mode " \N{SNAKE}") (highlight-indentation-mode " \N{STRAIGHT RULER}")
   :config
   (progn
     (elpy-enable)
@@ -337,7 +347,7 @@ tangled, and the tangled file is compiled."
     (add-hook 'elpy-mode-hook 'flycheck-mode)))
 
 (use-package blacken
-  :delight (blacken-mode " 🏴")
+  :delight (blacken-mode " \N{WAVING BLACK FLAG}")
   :hook (elpy-mode . blacken-mode))
 
 (defun my/ocaml/init-opam ()
@@ -386,7 +396,7 @@ tangled, and the tangled file is compiled."
   (sp-local-pair 'tuareg-mode "`" nil :actions nil))
 
 (use-package utop
-  :delight (utop-minor-mode " ⩂")
+  :delight (utop-minor-mode " ū")
   :hook (tuareg-mode . utop-minor-mode)
   :config
   (progn
@@ -428,3 +438,10 @@ tangled, and the tangled file is compiled."
 
 (use-package fish-mode
   :mode (("\\.fish\\'" . fish-mode)))
+
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
