@@ -470,7 +470,7 @@ toggle key.
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :demand
-    :after (helm)
+    :after ivy
     :delight (projectile-mode
               (:eval (format " \N{ROCKET}\N{MIDDLE DOT}%s" (my/project-type-glyph))))
     :bind-keymap ("C-c p" . projectile-command-map)
@@ -478,38 +478,28 @@ toggle key.
     (progn
       (projectile-mode 1)
       (projectile-discover-projects-in-search-path)
-      (setq projectile-completion-system 'helm)))
+      (setq projectile-completion-system 'ivy)))
 #+END_SRC
 
-** Helm
+** Ivy
 
 #+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :delight helm-mode
-    :demand t
-    :init
-    (progn
-      (setq helm-mode-fuzzy-match t)
-      (setq helm-completion-in-region-fuzzy-match t)
-      (setq helm-always-two-windows nil)
-      (setq helm-display-buffer-default-height 23)
-      (setq helm-default-display-buffer-functions
-            '(display-buffer-in-side-window)))
-    :config
-    (progn
-      (require 'helm-config)
-      (helm-mode 1)
-      (helm-adaptive-mode 1))
-    :bind (("M-x" . helm-M-x)
-           ("C-x r b" . helm-filtered-bookmarks)
-           ("C-x C-f" . helm-find-files)))
-  (ido-mode 0)
-#+END_SRC
+  (use-package counsel
+    :after ivy
+    :config (counsel-mode))
 
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-projectile
-    :after (helm projectile)
-    :config (helm-projectile-on))
+  (use-package ivy
+    :delight ivy-mode
+    :bind (("C-c C-r" . ivy-resume)
+           ("C-x B" . ivy-switch-buffer-other-window))
+    :custom
+    (ivy-count-format "(%d/%d) ")
+    (ivy-use-virtual-buffers t)
+    :config (ivy-mode))
+
+  (use-package swiper
+    :after ivy
+    :bind (("\C-s" . swiper)))
 #+END_SRC
 
 ** Treemacs
@@ -707,7 +697,6 @@ Automatically format Python code on save using the Black formatter.
 | Package        | Description     |
 |----------------+-----------------|
 | ggtags         |                 |
-| helm-gtags     |                 |
 
 #+BEGIN_SRC emacs-lisp
   (defun my/ocaml/init-opam ()
