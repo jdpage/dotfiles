@@ -1,6 +1,6 @@
 #+TITLE: Emacs configuration file
 #+AUTHOR: Jonathan David Page
-#+PROPERTY: header-args:emacs-lisp :tangle yes :noweb tangle
+#+PROPERTY: header-args:emacs-lisp :tangle yes :comments both :noweb yes
 
 * Init machinery
 ** Auto-tangle
@@ -62,13 +62,18 @@ after the init file is complete.
   (add-hook 'after-init-hook 'my/load-local-init)
 #+END_SRC
 
-Additionally, some behavior is macOS-only, so define a convenient constant to
-test against.
+Additionally, some behavior is Windows-only or macOS-only, so define convenient
+constants to test against.
 
 #+BEGIN_SRC emacs-lisp
   (defconst *my/is-macos*
     (memq window-system '(mac ns))
     "True if Emacs is running under macOS")
+
+  (defconst *my/is-winnt*
+    (or (string= "windows-nt" system-type)
+        (string= "cygwin" system-type))
+    "True if Emacs is running under Windows")
 #+END_SRC
 
 The GNU versions of some command-line tools support extra options. We use the
@@ -76,9 +81,9 @@ GNU versions on Linux and Windows, but not macOS.
 
 #+BEGIN_SRC emacs-lisp
   (defconst *my/is-gnu-like*
-    (or (string= "cygwin" system-type)
-	(string= "windows-nt" system-type)
-	(string-prefix-p "gnu" (symbol-name system-type)))
+    (or *my/is-winnt*  ; You're probably installing GNU-like instead of BSD-like
+                       ; tools under Windows.
+        (string-prefix-p "gnu" (symbol-name system-type)))
     "True if we expect GNU-like coreutils")
 #+END_SRC
 
@@ -87,7 +92,7 @@ GNU versions on Linux and Windows, but not macOS.
 First, we have to give GNUTLS some magic options so we can connect to ELPA.
 
 #+BEGIN_SRC emacs-lisp
-  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+  ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 #+END_SRC
 
 Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine
@@ -95,6 +100,7 @@ experience.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-use-package-by-default t)
+  (setq straight-recipes-gnu-elpa-use-mirror t)
 
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -232,6 +238,56 @@ Display emojis! These are crucial.
       (progn
         (global-emojify-mode 1)
         (global-emojify-mode-line-mode 1)))
+#+END_SRC
+
+Ligatures are nice, and Fantasque Sans Mono supports them. Specifically, it
+supports them for the following characters:
+
+#+BEGIN_SRC emacs-lisp
+  (defconst my/fantasque-ligatures
+    '("!=" "!=="
+      "==" "===" "=>" "==>" "=>>" "=/=" "=<<"
+      "->" "-->" "->>" "-<" "-<<"
+      "<-" "<-<" "<<-" "<--" "<->" "<=<" "<<=" "<==" "<=>" "<~~" "<~" "<<<"
+      "<<" "<=" "<~>" "<>" "<|||" "<||" "<|" "<|>" "<!--"
+      ">->" ">=>" ">>=" ">>-" ">-" ">=" ">>" ">>>"
+      "~~" "~>" "~~>"
+      "|>" "||>" "|||>" "||"
+      "::" "&&"
+      "//" "/*" "/**/"
+      "*/"))
+#+END_SRC
+
+Machinery for setting ligatures up:
+
+#+BEGIN_SRC emacs-lisp
+  (defun my/group-by-first-char (strs)
+    (let ((strs (sort strs 'string<))
+          (tbl))
+      (dolist (str strs tbl)
+        (let* ((char (string-to-char (substring str 0 1))))
+          (if (or (not tbl) (/= (car (car tbl)) char))
+              (setq tbl (cons (cons char (list str)) tbl))
+            (setcdr (car tbl) (cons str (cdr (car tbl)))))))))
+
+  (defun my/enable-compositions (ligatures)
+    (let ((regexps (mapcar (lambda (comp)
+                             (cons (car comp) (regexp-opt (cdr comp))))
+                           (my/group-by-first-char ligatures))))
+      (dolist (r regexps)
+        (let ((char (car r))
+              (comps (cdr r)))
+          (set-char-table-range composition-function-table char
+                                `([,comps 0 font-shape-gstring]))))))
+
+  (my/enable-compositions my/fantasque-ligatures)
+#+END_SRC
+
+NYAN NYAN NYAN
+
+#+BEGIN_SRC emacs-lisp
+  (use-package nyan-mode
+    :config (nyan-mode 1))
 #+END_SRC
 
 ** Better Defaults
@@ -398,16 +454,17 @@ toggle key.
 
 #+BEGIN_SRC emacs-lisp
   (setq my-project-type-glyph-alist
-     '((nil . "\N{NO ENTRY SIGN}")
-       (generic . "\N{GLOBE WITH MERIDIANS}")
-       (cmake . "▲")
-       (dune . "\N{BACTRIAN CAMEL}")))
+        '((nil . "\N{NO ENTRY SIGN}")
+          (generic . "\N{GLOBE WITH MERIDIANS}")
+          (cmake . "▲")
+          (dune . "\N{BACTRIAN CAMEL}")
+          (zig . "\N{CIRCLED LATIN CAPITAL LETTER Z}")))
 
   (defun my/project-type-glyph ()
     (let ((type (projectile-project-type)))
       (cdr
-        (or (assoc type my-project-type-glyph-alist)
-            (cons type type)))))
+       (or (assoc type my-project-type-glyph-alist)
+           (cons type type)))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -530,6 +587,18 @@ Open Treemacs on startup automatically.
       (global-origami-mode)))
 #+END_SRC
 
+** TRAMP
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default explicit-shell-file-name "/bin/bash")
+#+END_SRC
+
+** LSP
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode)
+#+END_SRC
+
 * Tools
 ** Org
 
@@ -574,6 +643,26 @@ Open Treemacs on startup automatically.
 #+END_SRC
 
 * Languages
+** C/C++
+
+#+BEGIN_SRC emacs-lisp
+  (use-package irony
+    :hook (((c++-mode c-mode objc-mode) . irony-mode)
+           (irony-mode . irony-cdb-autosetup-compile-options))
+    :init
+    (progn
+      (when (string= "windows-nt" system-type)
+        (setq exec-path (append exec-path '("~/scoop/apps/llvm/10.0.0/bin"))))
+      (when (boundp 'w32-pipe-read-delay)
+        (setq w32-pipe-read-delay 0))
+      (when (boundp 'w32-pipe-buffer-size)
+        (setq irony-server-w32-pipe-buffer-size (* 64 1024)))))
+
+  (use-package cmake-ide
+    :demand t
+    :config (cmake-ide-setup))
+#+END_SRC
+
 ** MATLAB
 
 Normally, =.m= files are treated as Objective-C files. I don't really do any
@@ -748,4 +837,57 @@ Register a projectile project type for Dune.
            ("\\.md\\'" . markdown-mode)
            ("\\.markdown\\'" . markdown-mode))
     :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+
+** Rust
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rustic)
+#+END_SRC
+
+** Lua
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lua-mode
+    :commands (lua-mode)
+    :mode ("\\.lua\\'" . lua-mode))
+#+END_SRC
+
+** TeX
+
+[[https://github.com/raxod502/straight.el/issues/240][AUCTeX is a pain in the ass to install.]]
+
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'auctex)
+  (setq TeX-parse-self t) ; Enable parse on load.
+  (setq TeX-auto-save t) ; Enable parse on save.
+  (setq TeX-view-program-list
+        '(("SumatraPDF"
+           ("SumatraPDF.exe -reuse-instance"
+            (mode-io-correlate " -forward-search \"%b\" %n")
+            " %o")
+           "SumatraPDF")))
+  (setq TeX-view-program-selection '((output-pdf "SumatraPDF")))
+  (setq TeX-source-correlate-mode t)
+  (setq TeX-source-correlate-method 'synctex)
+#+END_SRC
+
+** Zig
+
+#+BEGIN_SRC emacs-lisp
+  (use-package zig-mode
+    :commands (zig-mode)
+    :mode ("\\.zig\\'" . zig-mode))
+
+  (with-eval-after-load 'projectile
+    (projectile-register-project-type
+     'zig '("build.zig")
+     :compile "zig build"
+     :test "zig build"))
+#+END_SRC
+
+* Emacs Server
+
+#+BEGIN_SRC emacs-lisp
+  (server-start)
 #+END_SRC

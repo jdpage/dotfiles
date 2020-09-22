@@ -1,6 +1,29 @@
+;; Auto-tangle
+
+;; All changes should be done in =init.org=, *not* in =init.el=. Changes to
+;; =init.el= will be overwritten.
+
+;; We're using lexical binding for the init file, which is specified in a header.
+
+
+;; [[file:init.org::*Auto-tangle][Auto-tangle:1]]
 ;;; -*- lexical-binding: t -*-
 ;;; THIS IS A GENERATED FILE; see init.org
+;; Auto-tangle:1 ends here
 
+
+
+;; After first run, =init.el= should mirror the source blocks in =init.org=. To
+;; regenerate =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience,
+;; this is done automatically on saving the buffer.
+
+;; I originally had this byte-compile the file as well, which turned out to be a
+;; huge pain when the file was valid, but wouldn't byte-compile because it referred
+;; to something from a package that hadn't been loaded/installed yet. This resulted
+;; in Emacs getting stuck on the byte-compiled version.
+
+
+;; [[file:init.org::*Auto-tangle][Auto-tangle:2]]
 (defun my/tangle-init ()
   "If the current buffer is 'init.org' the code blocks are
 tangled, and the tangled file is compiled."
@@ -13,10 +36,26 @@ tangled, and the tangled file is compiled."
       (org-html-export-to-html))))
 
 (add-hook 'after-save-hook 'my/tangle-init)
+;; Auto-tangle:2 ends here
 
+
+
+;; Since =init.el= gets overwritten constantly, Emacs adding customizations to it
+;; is a bit futile. These are punted off into another file.
+
+
+;; [[file:init.org::*Auto-tangle][Auto-tangle:3]]
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file t)
+;; Auto-tangle:3 ends here
 
+;; Machine-local settings support
+
+;; Machine-local settings live in a separate file. Load =local.el= if it exists,
+;; after the init file is complete.
+
+
+;; [[file:init.org::*Machine-local settings support][Machine-local settings support:1]]
 (defun my/load-local-init ()
   (let ((local-file (concat user-emacs-directory "/local-" (system-name) ".el")))
     (message local-file)
@@ -24,20 +63,57 @@ tangled, and the tangled file is compiled."
       (load-file local-file))))
 
 (add-hook 'after-init-hook 'my/load-local-init)
+;; Machine-local settings support:1 ends here
 
+
+
+;; Additionally, some behavior is Windows-only or macOS-only, so define convenient
+;; constants to test against.
+
+
+;; [[file:init.org::*Machine-local settings support][Machine-local settings support:2]]
 (defconst *my/is-macos*
   (memq window-system '(mac ns))
   "True if Emacs is running under macOS")
 
+(defconst *my/is-winnt*
+  (or (string= "windows-nt" system-type)
+      (string= "cygwin" system-type))
+  "True if Emacs is running under Windows")
+;; Machine-local settings support:2 ends here
+
+
+
+;; The GNU versions of some command-line tools support extra options. We use the
+;; GNU versions on Linux and Windows, but not macOS.
+
+
+;; [[file:init.org::*Machine-local settings support][Machine-local settings support:3]]
 (defconst *my/is-gnu-like*
-  (or (string= "cygwin" system-type)
-      (string= "windows-nt" system-type)
+  (or *my/is-winnt*  ; You're probably installing GNU-like instead of BSD-like
+                     ; tools under Windows.
       (string-prefix-p "gnu" (symbol-name system-type)))
   "True if we expect GNU-like coreutils")
+;; Machine-local settings support:3 ends here
 
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+;; Package Management
 
+;; First, we have to give GNUTLS some magic options so we can connect to ELPA.
+
+
+;; [[file:init.org::*Package Management][Package Management:1]]
+;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+;; Package Management:1 ends here
+
+
+
+;; Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine
+;; experience.
+
+
+;; [[file:init.org::*Package Management][Package Management:2]]
 (setq straight-use-package-by-default t)
+(setq straight-recipes-gnu-elpa-use-mirror t)
 
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -52,37 +128,94 @@ tangled, and the tangled file is compiled."
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+;; Package Management:2 ends here
 
+
+
+;; Main package management is through =use-package=, but that has to be installed
+;; first.
+
+
+;; [[file:init.org::*Package Management][Package Management:3]]
 (setq use-package-verbose t)
 (straight-use-package 'use-package)
 (use-package auto-compile
   :config (auto-compile-on-load-mode))
 (setq load-prefer-newer t)
+;; Package Management:3 ends here
 
+;; Libraries
+
+
+;; [[file:init.org::*Libraries][Libraries:1]]
 (use-package dash :config (dash-enable-font-lock))
 (use-package delight)
+;; Libraries:1 ends here
 
+;; Platform Fixes
+
+;; On macOS, GUI applications tend to miss out on environment variables. We can
+;; pull these from the shell instead.
+
+
+;; [[file:init.org::*Platform Fixes][Platform Fixes:1]]
 (use-package exec-path-from-shell
   :if *my/is-macos*
   :config
   (exec-path-from-shell-initialize))
+;; Platform Fixes:1 ends here
 
+
+
+;; We only expect GNU coreutils on some systems. Tell Emacs about systems where we
+;; don't think we'll have them.
+
+
+;; [[file:init.org::*Platform Fixes][Platform Fixes:2]]
 (when (not *my/is-gnu-like*)
   (setq dired-use-ls-dired nil))
+;; Platform Fixes:2 ends here
 
+;; Safety & Backups
+
+;; By default Emacs scatters backup files all over the shop. Instead, we'd prefer
+;; for them to all be in one directory.
+
+
+;; [[file:init.org::*Safety & Backups][Safety & Backups:1]]
 (setq my-backup-directory (concat user-emacs-directory "backups"))
 (when (not (file-exists-p my-backup-directory))
   (make-directory my-backup-directory))
 (setq backup-directory-alist `(("." . ,my-backup-directory)))
+;; Safety & Backups:1 ends here
 
+
+
+;; Keep multiple versions of backup files. We can always delete them later if they
+;; prove to be a pain.
+
+
+;; [[file:init.org::*Safety & Backups][Safety & Backups:2]]
 (setq backup-by-copying t)    ; this is a bit safer
 (setq version-control t)      ; numbered backups
 (setq delete-old-versions t)  ; manage excess backups
 (setq kept-old-versions 6)
 (setq kept-new-versions 9)
+;; Safety & Backups:2 ends here
 
+
+
+;; Instead of instantly consigning files to oblivion, move them to the trash.
+
+
+;; [[file:init.org::*Safety & Backups][Safety & Backups:3]]
 (setq delete-by-moving-to-trash t)
+;; Safety & Backups:3 ends here
 
+;; History
+
+
+;; [[file:init.org::*History][History:1]]
 (setq savehist-file (concat user-emacs-directory "savehist"))
 (savehist-mode 1)
 (setq history-length t)
@@ -94,20 +227,46 @@ tangled, and the tangled file is compiled."
         regexp-search-ring))
 (setq recentf-max-saved-items 100)
 (recentf-mode 1)
+;; History:1 ends here
 
+;; Visual Experience
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:1]]
 (setq-default show-trailing-whitespace t)
 (setq inhibit-startup-message t)
 (setq global-linum-mode nil)  ; maybe?
+;; Visual Experience:1 ends here
 
+
+
+;; Modes that need to be enabled/disabled:
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:2]]
 (tool-bar-mode 0)      ; no toolbars
 (scroll-bar-mode 0)    ; no scrollbars
 (blink-cursor-mode 0)  ; no blinking cursor
 (show-paren-mode 1)
 (global-prettify-symbols-mode 0)
+;; Visual Experience:2 ends here
 
+
+
+;; Font face and size. Let me tell you how much I love this font.
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:3]]
 (add-to-list 'default-frame-alist
              '(font . "Fantasque Sans Mono-10"))
+;; Visual Experience:3 ends here
 
+
+
+;; Display emojis! These are crucial.
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:4]]
 (use-package emojify
     :init
     (progn
@@ -117,9 +276,80 @@ tangled, and the tangled file is compiled."
     (progn
       (global-emojify-mode 1)
       (global-emojify-mode-line-mode 1)))
+;; Visual Experience:4 ends here
 
+
+
+;; Ligatures are nice, and Fantasque Sans Mono supports them. Specifically, it
+;; supports them for the following characters:
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:5]]
+(defconst my/fantasque-ligatures
+  '("!=" "!=="
+    "==" "===" "=>" "==>" "=>>" "=/=" "=<<"
+    "->" "-->" "->>" "-<" "-<<"
+    "<-" "<-<" "<<-" "<--" "<->" "<=<" "<<=" "<==" "<=>" "<~~" "<~" "<<<"
+    "<<" "<=" "<~>" "<>" "<|||" "<||" "<|" "<|>" "<!--"
+    ">->" ">=>" ">>=" ">>-" ">-" ">=" ">>" ">>>"
+    "~~" "~>" "~~>"
+    "|>" "||>" "|||>" "||"
+    "::" "&&"
+    "//" "/*" "/**/"
+    "*/"))
+;; Visual Experience:5 ends here
+
+
+
+;; Machinery for setting ligatures up:
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:6]]
+(defun my/group-by-first-char (strs)
+  (let ((strs (sort strs 'string<))
+        (tbl))
+    (dolist (str strs tbl)
+      (let* ((char (string-to-char (substring str 0 1))))
+        (if (or (not tbl) (/= (car (car tbl)) char))
+            (setq tbl (cons (cons char (list str)) tbl))
+          (setcdr (car tbl) (cons str (cdr (car tbl)))))))))
+
+(defun my/enable-compositions (ligatures)
+  (let ((regexps (mapcar (lambda (comp)
+                           (cons (car comp) (regexp-opt (cdr comp))))
+                         (my/group-by-first-char ligatures))))
+    (dolist (r regexps)
+      (let ((char (car r))
+            (comps (cdr r)))
+        (set-char-table-range composition-function-table char
+                              `([,comps 0 font-shape-gstring]))))))
+
+(my/enable-compositions my/fantasque-ligatures)
+;; Visual Experience:6 ends here
+
+
+
+;; NYAN NYAN NYAN
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:7]]
+(use-package nyan-mode
+  :config (nyan-mode 1))
+;; Visual Experience:7 ends here
+
+;; Better Defaults
+
+;; They're better.
+
+
+;; [[file:init.org::*Better Defaults][Better Defaults:1]]
 (use-package better-defaults)
+;; Better Defaults:1 ends here
 
+;; Input
+
+
+;; [[file:init.org::*Input][Input:1]]
 (setq default-input-method "TeX")
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
@@ -134,29 +364,74 @@ tangled, and the tangled file is compiled."
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
+;; Input:1 ends here
 
+
+
+;; Use =utf-8= by default, because it's the 21st century and all.
+
+
+;; [[file:init.org::*Input][Input:2]]
 (set-language-environment "UTF-8")
 (setq-default buffer-file-coding-system 'utf-8-unix)
+;; Input:2 ends here
 
+;; TODO Smartparens
+;;    This wants to be global?
+
+
+;; [[file:init.org::*Smartparens][Smartparens:1]]
 (use-package smartparens
   :config
   (require 'smartparens-config))
+;; Smartparens:1 ends here
 
+;; Autocomplete
+
+
+;; [[file:init.org::*Autocomplete][Autocomplete:1]]
 (use-package company
   :config
   (global-company-mode))
+;; Autocomplete:1 ends here
 
+;; Syntax Checking
+
+
+;; [[file:init.org::*Syntax Checking][Syntax Checking:1]]
 (use-package flycheck
   :delight (flycheck-mode " \N{BUTTERFLY}")
   :commands flycheck-mode)
+;; Syntax Checking:1 ends here
 
+;; Which-key
+
+
+;; [[file:init.org::*Which-key][Which-key:1]]
 (use-package which-key
   :delight which-key-mode
   :config (which-key-mode 1))
+;; Which-key:1 ends here
 
+;; Powerline
+
+;; Powerline, for fancier modelines. Possibly also gives away that I'm a VIM
+;; refugee.
+
+
+;; [[file:init.org::*Powerline][Powerline:1]]
 (use-package powerline
   :config (powerline-default-theme))
+;; Powerline:1 ends here
 
+;; Mixed-DPI Toggle
+
+;; Because I have a mixed-DPI setup and I'm under X, I need to be able to rescale
+;; an entire Emacs frame at a time on the fly, so I also include keybindings for
+;; that. This can be hooked into for e.g. fixing treemacs icons.
+
+
+;; [[file:init.org::*Mixed-DPI Toggle][Mixed-DPI Toggle:1]]
 (defvar my/toggle-face-height-hook nil
   "Called when toggling the face height for mixed-DPI setups")
 
@@ -171,11 +446,24 @@ tangled, and the tangled file is compiled."
   (run-hooks 'my/toggle-face-height-hook))
 
 (global-set-key (kbd "C-x T s") 'my/toggle-face-height)
+;; Mixed-DPI Toggle:1 ends here
 
+;; Color scheme
+
+
+;; [[file:init.org::*Color scheme][Color scheme:1]]
 (setq my-light-theme 'gruvbox-light-soft)
 (setq my-dark-theme 'gruvbox-dark-soft)
 (setq my-initial-theme my-dark-theme)
+;; Color scheme:1 ends here
 
+
+
+;; This provides a function which observes the current theme, and toggles it to
+;; light if it is dark.
+
+
+;; [[file:init.org::*Color scheme][Color scheme:2]]
 (defun my/toggle-theme ()
   (interactive)
 
@@ -183,14 +471,27 @@ tangled, and the tangled file is compiled."
     (dolist (theme custom-enabled-themes)
       (disable-theme theme))
     (load-theme (if is-dark my-light-theme my-dark-theme) t)))
+;; Color scheme:2 ends here
 
+
+
+;; If we're using a windowing system, then apply the startup theme and bind a
+;; toggle key.
+
+
+;; [[file:init.org::*Color scheme][Color scheme:3]]
 (use-package gruvbox-theme
   :if window-system
   :demand t
   :bind ("C-x T t" . my/toggle-theme)
   :config
   (load-theme my-initial-theme t))
+;; Color scheme:3 ends here
 
+;; Undo-tree
+
+
+;; [[file:init.org::*Undo-tree][Undo-tree:1]]
 (use-package undo-tree
   :delight undo-tree-mode
   :config
@@ -198,26 +499,44 @@ tangled, and the tangled file is compiled."
     (global-undo-tree-mode)
     (setq undo-tree-visualizer-timestamps t)
     (setq undo-tree-visualizer-diff t)))
+;; Undo-tree:1 ends here
 
+;; Window Management
+
+
+;; [[file:init.org::*Window Management][Window Management:1]]
 (use-package ace-window
   :bind ("M-o" . ace-window))
+;; Window Management:1 ends here
 
+;; Evil
+
+
+;; [[file:init.org::*Evil][Evil:1]]
 (use-package evil
   :config
   (evil-mode 1))
+;; Evil:1 ends here
 
+;; Projectile
+
+
+;; [[file:init.org::*Projectile][Projectile:1]]
 (setq my-project-type-glyph-alist
-   '((nil . "\N{NO ENTRY SIGN}")
-     (generic . "\N{GLOBE WITH MERIDIANS}")
-     (cmake . "▲")
-     (dune . "\N{BACTRIAN CAMEL}")))
+      '((nil . "\N{NO ENTRY SIGN}")
+        (generic . "\N{GLOBE WITH MERIDIANS}")
+        (cmake . "▲")
+        (dune . "\N{BACTRIAN CAMEL}")
+        (zig . "\N{CIRCLED LATIN CAPITAL LETTER Z}")))
 
 (defun my/project-type-glyph ()
   (let ((type (projectile-project-type)))
     (cdr
-      (or (assoc type my-project-type-glyph-alist)
-          (cons type type)))))
+     (or (assoc type my-project-type-glyph-alist)
+         (cons type type)))))
+;; Projectile:1 ends here
 
+;; [[file:init.org::*Projectile][Projectile:2]]
 (use-package projectile
   :demand
   :after (helm)
@@ -229,7 +548,12 @@ tangled, and the tangled file is compiled."
     (projectile-mode 1)
     (projectile-discover-projects-in-search-path)
     (setq projectile-completion-system 'helm)))
+;; Projectile:2 ends here
 
+;; Helm
+
+
+;; [[file:init.org::*Helm][Helm:1]]
 (use-package helm
   :delight helm-mode
   :demand t
@@ -250,11 +574,18 @@ tangled, and the tangled file is compiled."
          ("C-x r b" . helm-filtered-bookmarks)
          ("C-x C-f" . helm-find-files)))
 (ido-mode 0)
+;; Helm:1 ends here
 
+;; [[file:init.org::*Helm][Helm:2]]
 (use-package helm-projectile
   :after (helm projectile)
   :config (helm-projectile-on))
+;; Helm:2 ends here
 
+;; Treemacs
+
+
+;; [[file:init.org::*Treemacs][Treemacs:1]]
 (use-package treemacs
   :config
   (progn
@@ -262,16 +593,30 @@ tangled, and the tangled file is compiled."
     (treemacs-filewatch-mode 1)
     (define-key treemacs-mode-map [mouse-1]
       #'treemacs-single-click-expand-action)))
+;; Treemacs:1 ends here
 
+;; [[file:init.org::*Treemacs][Treemacs:2]]
 (use-package treemacs-projectile
   :after (treemacs projectile))
+;; Treemacs:2 ends here
 
+;; [[file:init.org::*Treemacs][Treemacs:3]]
 (use-package treemacs-magit
   :after (treemacs magit))
+;; Treemacs:3 ends here
 
+;; [[file:init.org::*Treemacs][Treemacs:4]]
 (use-package treemacs-evil
   :after (treemacs evil))
+;; Treemacs:4 ends here
 
+
+
+;; Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if
+;; necessary. Supplying the universal argument toggles the treemacs buffer instead.
+
+
+;; [[file:init.org::*Treemacs][Treemacs:5]]
 (defun my/treemacs-command (arg)
   (interactive "P")
   (if (> (prefix-numeric-value arg) 1)
@@ -279,14 +624,33 @@ tangled, and the tangled file is compiled."
     (treemacs-select-window)))
 
 (global-set-key (kbd "C-x t") 'my/treemacs-command)
+;; Treemacs:5 ends here
 
+
+
+;; Rescale treemacs icons when we toggle the font-size for mixed-DPI.
+
+
+;; [[file:init.org::*Treemacs][Treemacs:6]]
 (add-hook 'my/toggle-face-height-hook
           #'(lambda ()
               (treemacs-resize-icons
                (if (> (my/current-default-face-height) 80) 22 11))))
+;; Treemacs:6 ends here
 
+
+
+;; Open Treemacs on startup automatically.
+
+
+;; [[file:init.org::*Treemacs][Treemacs:7]]
 (treemacs-select-window)
+;; Treemacs:7 ends here
 
+;; Code Folding
+
+
+;; [[file:init.org::*Code Folding][Code Folding:1]]
 (use-package origami
   :after evil
   :config
@@ -302,7 +666,26 @@ tangled, and the tangled file is compiled."
     (evil-define-key 'normal origami-mode-map "zm" 'origami-close-all-nodes)
     (evil-define-key 'normal origami-mode-map "zr" 'origami-open-all-nodes)
     (global-origami-mode)))
+;; Code Folding:1 ends here
 
+;; TRAMP
+
+
+;; [[file:init.org::*TRAMP][TRAMP:1]]
+(setq-default explicit-shell-file-name "/bin/bash")
+;; TRAMP:1 ends here
+
+;; LSP
+
+
+;; [[file:init.org::*LSP][LSP:1]]
+(use-package lsp-mode)
+;; LSP:1 ends here
+
+;; Org
+
+
+;; [[file:init.org::*Org][Org:1]]
 (use-package org
   :init
   (progn
@@ -310,32 +693,81 @@ tangled, and the tangled file is compiled."
     (define-key global-map "\C-ca" 'org-agenda)
     (setq org-log-done t)
     ))
+;; Org:1 ends here
 
+;; [[file:init.org::*Org][Org:2]]
 (use-package htmlize)
+;; Org:2 ends here
 
+;; [[file:init.org::*Org][Org:3]]
 (use-package org-d20
   :commands org-d20-mode)
+;; Org:3 ends here
 
+;; Git
+
+
+;; [[file:init.org::*Git][Git:1]]
 (use-package magit
   :bind ("C-x g" . magit-status)
   :config
   (progn
     (add-hook 'magit-mode-hook #'(lambda () (origami-mode 0)))))
+;; Git:1 ends here
 
+;; [[file:init.org::*Git][Git:2]]
 (use-package evil-magit
   :after (evil magit))
+;; Git:2 ends here
 
+;; [[file:init.org::*Git][Git:3]]
 (use-package git-gutter-fringe
   :delight git-gutter-mode
   :config (global-git-gutter-mode 1))
+;; Git:3 ends here
 
+;; C/C++
+
+
+;; [[file:init.org::*C/C++][C/C++:1]]
+(use-package irony
+  :hook (((c++-mode c-mode objc-mode) . irony-mode)
+         (irony-mode . irony-cdb-autosetup-compile-options))
+  :init
+  (progn
+    (when (string= "windows-nt" system-type)
+      (setq exec-path (append exec-path '("~/scoop/apps/llvm/10.0.0/bin"))))
+    (when (boundp 'w32-pipe-read-delay)
+      (setq w32-pipe-read-delay 0))
+    (when (boundp 'w32-pipe-buffer-size)
+      (setq irony-server-w32-pipe-buffer-size (* 64 1024)))))
+
+(use-package cmake-ide
+  :demand t
+  :config (cmake-ide-setup))
+;; C/C++:1 ends here
+
+;; MATLAB
+
+;; Normally, =.m= files are treated as Objective-C files. I don't really do any
+;; ObjC, so they're going to be treated as MATLAB files instead.
+
+
+;; [[file:init.org::*MATLAB][MATLAB:1]]
 (use-package matlab-mode
   :mode "\\.m\\'"
   :init
   (progn
     (setq matlab-indent-function t)  ; TODO figure out what this does
     (setq matlab-shell-command "/usr/local/bin/matlab")))
+;; MATLAB:1 ends here
 
+;; Python
+
+;; Python development environment using Elpy.
+
+
+;; [[file:init.org::*Python][Python:1]]
 (use-package elpy
   :delight (elpy-mode " \N{SNAKE}") (highlight-indentation-mode " \N{STRAIGHT RULER}")
   :config
@@ -345,11 +777,29 @@ tangled, and the tangled file is compiled."
     ;; replace flymake with flycheck
     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
     (add-hook 'elpy-mode-hook 'flycheck-mode)))
+;; Python:1 ends here
 
+
+
+;; Automatically format Python code on save using the Black formatter.
+
+
+;; [[file:init.org::*Python][Python:2]]
 (use-package blacken
   :delight (blacken-mode " \N{WAVING BLACK FLAG}")
   :hook (elpy-mode . blacken-mode))
+;; Python:2 ends here
 
+;; TODO Ocaml
+
+;; #+NAME: packages/ocaml
+;; | Package        | Description     |
+;; |----------------+-----------------|
+;; | ggtags         |                 |
+;; | helm-gtags     |                 |
+
+
+;; [[file:init.org::*Ocaml][Ocaml:1]]
 (defun my/ocaml/init-opam ()
   (if (executable-find "opam")
       (let ((share (string-trim-right
@@ -368,7 +818,9 @@ tangled, and the tangled file is compiled."
                  (add-to-list 'load-path opam-load-path))))
     (unless (executable-find "ocamlmerlin")
       (message "warning: cannot find `%s' or `%s' executable." "opam" "merlin"))))
+;; Ocaml:1 ends here
 
+;; [[file:init.org::*Ocaml][Ocaml:2]]
 (use-package tuareg
   :mode (("\\.ml[ily]?$" . tuareg-mode)
          ("\\.topml$" . tuareg-mode))
@@ -380,21 +832,29 @@ tangled, and the tangled file is compiled."
     (dolist (ext '(".cmo" ".cmx" ".cma" ".cmxa" ".cmi" ".cmxs" ".cmt"
                    ".cmti" ".annot"))
       (add-to-list 'completion-ignored-extensions ext))))
+;; Ocaml:2 ends here
 
+;; [[file:init.org::*Ocaml][Ocaml:3]]
 (use-package merlin
   :delight (merlin-mode " ⚗")
   :hook (tuareg-mode . merlin-mode)
   :init
   (progn
     (add-to-list 'company-backends 'merlin-company-backend)))
+;; Ocaml:3 ends here
 
+;; [[file:init.org::*Ocaml][Ocaml:4]]
 (use-package ocp-indent
   :hook (tuareg-mode . ocp-indent-caml-mode-setup))
+;; Ocaml:4 ends here
 
+;; [[file:init.org::*Ocaml][Ocaml:5]]
 (with-eval-after-load 'smartparens
   (sp-local-pair 'tuareg-mode "'" nil :actions nil)
   (sp-local-pair 'tuareg-mode "`" nil :actions nil))
+;; Ocaml:5 ends here
 
+;; [[file:init.org::*Ocaml][Ocaml:6]]
 (use-package utop
   :delight (utop-minor-mode " ū")
   :hook (tuareg-mode . utop-minor-mode)
@@ -403,14 +863,23 @@ tangled, and the tangled file is compiled."
     (if (executable-find "opam")
         (setq utop-command "opam config exec -- utop -emacs")
       (message "warning: cannot find `opam' executable."))))
+;; Ocaml:6 ends here
 
+;; [[file:init.org::*Ocaml][Ocaml:7]]
 (use-package flycheck-ocaml
   :after (flycheck merlin)
   :config
   (progn
     (setq merlin-error-after-save nil)
     (flycheck-ocaml-setup)))
+;; Ocaml:7 ends here
 
+
+
+;; Register a projectile project type for Dune.
+
+
+;; [[file:init.org::*Ocaml][Ocaml:8]]
 (use-package dune)
 
 (with-eval-after-load 'projectile
@@ -418,7 +887,12 @@ tangled, and the tangled file is compiled."
    'dune '("dune-project")
    :compile "dune build"
    :test "dune runtest"))
+;; Ocaml:8 ends here
 
+;; Go
+
+
+;; [[file:init.org::*Go][Go:1]]
 ;; (use-package company-go)
 (use-package go-mode
   :mode ("\\.go\\'". go-mode)
@@ -431,17 +905,91 @@ tangled, and the tangled file is compiled."
     (add-hook 'go-mode-hook #'my/go-mode-locals)
     (add-hook 'go-mode-hook #'flycheck-mode)
     (add-hook 'before-save-hook #'gofmt-before-save)))
+;; Go:1 ends here
 
+;; CUDA
+
+
+;; [[file:init.org::*CUDA][CUDA:1]]
 (use-package cuda-mode
   :mode (("\\.cu\\'" . cuda-mode)
          ("\\.cuh\\'" . cuda-mode)))
+;; CUDA:1 ends here
 
+;; fish shell
+
+
+;; [[file:init.org::*fish shell][fish shell:1]]
 (use-package fish-mode
   :mode (("\\.fish\\'" . fish-mode)))
+;; fish shell:1 ends here
 
+;; Markdown
+
+
+;; [[file:init.org::*Markdown][Markdown:1]]
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
+;; Markdown:1 ends here
+
+;; Rust
+
+
+;; [[file:init.org::*Rust][Rust:1]]
+(use-package rustic)
+;; Rust:1 ends here
+
+;; Lua
+
+
+;; [[file:init.org::*Lua][Lua:1]]
+(use-package lua-mode
+  :commands (lua-mode)
+  :mode ("\\.lua\\'" . lua-mode))
+;; Lua:1 ends here
+
+;; TeX
+
+;; [[https://github.com/raxod502/straight.el/issues/240][AUCTeX is a pain in the ass to install.]]
+
+
+;; [[file:init.org::*TeX][TeX:1]]
+(straight-use-package 'auctex)
+(setq TeX-parse-self t) ; Enable parse on load.
+(setq TeX-auto-save t) ; Enable parse on save.
+(setq TeX-view-program-list
+      '(("SumatraPDF"
+         ("SumatraPDF.exe -reuse-instance"
+          (mode-io-correlate " -forward-search \"%b\" %n")
+          " %o")
+         "SumatraPDF")))
+(setq TeX-view-program-selection '((output-pdf "SumatraPDF")))
+(setq TeX-source-correlate-mode t)
+(setq TeX-source-correlate-method 'synctex)
+;; TeX:1 ends here
+
+;; Zig
+
+
+;; [[file:init.org::*Zig][Zig:1]]
+(use-package zig-mode
+  :commands (zig-mode)
+  :mode ("\\.zig\\'" . zig-mode))
+
+(with-eval-after-load 'projectile
+  (projectile-register-project-type
+   'zig '("build.zig")
+   :compile "zig build"
+   :test "zig build"))
+;; Zig:1 ends here
+
+;; Emacs Server
+
+
+;; [[file:init.org::*Emacs Server][Emacs Server:1]]
+(server-start)
+;; Emacs Server:1 ends here
