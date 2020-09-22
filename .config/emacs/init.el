@@ -6,7 +6,7 @@
 ;; We're using lexical binding for the init file, which is specified in a header.
 
 
-;; [[file:~/.config/emacs/init.org::*Auto-tangle][Auto-tangle:1]]
+;; [[file:init.org::*Auto-tangle][Auto-tangle:1]]
 ;;; -*- lexical-binding: t -*-
 ;;; THIS IS A GENERATED FILE; see init.org
 ;; Auto-tangle:1 ends here
@@ -23,7 +23,7 @@
 ;; in Emacs getting stuck on the byte-compiled version.
 
 
-;; [[file:~/.config/emacs/init.org::*Auto-tangle][Auto-tangle:2]]
+;; [[file:init.org::*Auto-tangle][Auto-tangle:2]]
 (defun my/tangle-init ()
   "If the current buffer is 'init.org' the code blocks are
 tangled, and the tangled file is compiled."
@@ -44,7 +44,7 @@ tangled, and the tangled file is compiled."
 ;; is a bit futile. These are punted off into another file.
 
 
-;; [[file:~/.config/emacs/init.org::*Auto-tangle][Auto-tangle:3]]
+;; [[file:init.org::*Auto-tangle][Auto-tangle:3]]
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file t)
 ;; Auto-tangle:3 ends here
@@ -55,7 +55,7 @@ tangled, and the tangled file is compiled."
 ;; after the init file is complete.
 
 
-;; [[file:~/.config/emacs/init.org::*Machine-local settings support][Machine-local settings support:1]]
+;; [[file:init.org::*Machine-local settings support][Machine-local settings support:1]]
 (defun my/load-local-init ()
   (let ((local-file (concat user-emacs-directory "/local-" (system-name) ".el")))
     (message local-file)
@@ -71,7 +71,7 @@ tangled, and the tangled file is compiled."
 ;; constants to test against.
 
 
-;; [[file:~/.config/emacs/init.org::*Machine-local settings support][Machine-local settings support:2]]
+;; [[file:init.org::*Machine-local settings support][Machine-local settings support:2]]
 (defconst *my/is-macos*
   (memq window-system '(mac ns))
   "True if Emacs is running under macOS")
@@ -88,7 +88,7 @@ tangled, and the tangled file is compiled."
 ;; GNU versions on Linux and Windows, but not macOS.
 
 
-;; [[file:~/.config/emacs/init.org::*Machine-local settings support][Machine-local settings support:3]]
+;; [[file:init.org::*Machine-local settings support][Machine-local settings support:3]]
 (defconst *my/is-gnu-like*
   (or *my/is-winnt*  ; You're probably installing GNU-like instead of BSD-like
                      ; tools under Windows.
@@ -101,7 +101,7 @@ tangled, and the tangled file is compiled."
 ;; First, we have to give GNUTLS some magic options so we can connect to ELPA.
 
 
-;; [[file:~/.config/emacs/init.org::*Package Management][Package Management:1]]
+;; [[file:init.org::*Package Management][Package Management:1]]
 ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 ;; Package Management:1 ends here
 
@@ -111,7 +111,7 @@ tangled, and the tangled file is compiled."
 ;; experience.
 
 
-;; [[file:~/.config/emacs/init.org::*Package Management][Package Management:2]]
+;; [[file:init.org::*Package Management][Package Management:2]]
 (setq straight-use-package-by-default t)
 (setq straight-recipes-gnu-elpa-use-mirror t)
 
@@ -136,7 +136,7 @@ tangled, and the tangled file is compiled."
 ;; first.
 
 
-;; [[file:~/.config/emacs/init.org::*Package Management][Package Management:3]]
+;; [[file:init.org::*Package Management][Package Management:3]]
 (setq use-package-verbose t)
 (straight-use-package 'use-package)
 (use-package auto-compile
@@ -147,7 +147,7 @@ tangled, and the tangled file is compiled."
 ;; Libraries
 
 
-;; [[file:~/.config/emacs/init.org::*Libraries][Libraries:1]]
+;; [[file:init.org::*Libraries][Libraries:1]]
 (use-package dash :config (dash-enable-font-lock))
 (use-package delight)
 ;; Libraries:1 ends here
@@ -158,7 +158,7 @@ tangled, and the tangled file is compiled."
 ;; pull these from the shell instead.
 
 
-;; [[file:~/.config/emacs/init.org::*Platform Fixes][Platform Fixes:1]]
+;; [[file:init.org::*Platform Fixes][Platform Fixes:1]]
 (use-package exec-path-from-shell
   :if *my/is-macos*
   :config
@@ -171,7 +171,7 @@ tangled, and the tangled file is compiled."
 ;; don't think we'll have them.
 
 
-;; [[file:~/.config/emacs/init.org::*Platform Fixes][Platform Fixes:2]]
+;; [[file:init.org::*Platform Fixes][Platform Fixes:2]]
 (when (not *my/is-gnu-like*)
   (setq dired-use-ls-dired nil))
 ;; Platform Fixes:2 ends here
@@ -182,7 +182,7 @@ tangled, and the tangled file is compiled."
 ;; for them to all be in one directory.
 
 
-;; [[file:~/.config/emacs/init.org::*Safety & Backups][Safety & Backups:1]]
+;; [[file:init.org::*Safety & Backups][Safety & Backups:1]]
 (setq my-backup-directory (concat user-emacs-directory "backups"))
 (when (not (file-exists-p my-backup-directory))
   (make-directory my-backup-directory))
@@ -195,7 +195,7 @@ tangled, and the tangled file is compiled."
 ;; prove to be a pain.
 
 
-;; [[file:~/.config/emacs/init.org::*Safety & Backups][Safety & Backups:2]]
+;; [[file:init.org::*Safety & Backups][Safety & Backups:2]]
 (setq backup-by-copying t)    ; this is a bit safer
 (setq version-control t)      ; numbered backups
 (setq delete-old-versions t)  ; manage excess backups
@@ -208,14 +208,14 @@ tangled, and the tangled file is compiled."
 ;; Instead of instantly consigning files to oblivion, move them to the trash.
 
 
-;; [[file:~/.config/emacs/init.org::*Safety & Backups][Safety & Backups:3]]
+;; [[file:init.org::*Safety & Backups][Safety & Backups:3]]
 (setq delete-by-moving-to-trash t)
 ;; Safety & Backups:3 ends here
 
 ;; History
 
 
-;; [[file:~/.config/emacs/init.org::*History][History:1]]
+;; [[file:init.org::*History][History:1]]
 (setq savehist-file (concat user-emacs-directory "savehist"))
 (savehist-mode 1)
 (setq history-length t)
@@ -232,8 +232,7 @@ tangled, and the tangled file is compiled."
 ;; Visual Experience
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:1]]
-(setq-default show-trailing-whitespace t)
+;; [[file:init.org::*Visual Experience][Visual Experience:1]]
 (setq inhibit-startup-message t)
 (setq global-linum-mode nil)  ; maybe?
 ;; Visual Experience:1 ends here
@@ -243,7 +242,7 @@ tangled, and the tangled file is compiled."
 ;; Modes that need to be enabled/disabled:
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:2]]
+;; [[file:init.org::*Visual Experience][Visual Experience:2]]
 (tool-bar-mode 0)      ; no toolbars
 (scroll-bar-mode 0)    ; no scrollbars
 (blink-cursor-mode 0)  ; no blinking cursor
@@ -256,17 +255,33 @@ tangled, and the tangled file is compiled."
 ;; Font face and size. Let me tell you how much I love this font.
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:3]]
+;; [[file:init.org::*Visual Experience][Visual Experience:3]]
 (add-to-list 'default-frame-alist
              '(font . "Fantasque Sans Mono-10"))
 ;; Visual Experience:3 ends here
 
 
 
+;; Highlight trailing whitespace, but not in like, every single buffer. In
+;; particular, we want to exclude the ivy buffers.
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:4]]
+(setq-default show-trailing-whitespace t)
+
+(defun my/hide-trailing-whitespace ()
+  (setq show-trailing-whitespace nil))
+
+(add-hook 'minibuffer-setup-hook
+          'my/hide-trailing-whitespace)
+;; Visual Experience:4 ends here
+
+
+
 ;; Display emojis! These are crucial.
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:4]]
+;; [[file:init.org::*Visual Experience][Visual Experience:5]]
 (use-package emojify
     :init
     (progn
@@ -276,7 +291,7 @@ tangled, and the tangled file is compiled."
     (progn
       (global-emojify-mode 1)
       (global-emojify-mode-line-mode 1)))
-;; Visual Experience:4 ends here
+;; Visual Experience:5 ends here
 
 
 
@@ -284,7 +299,7 @@ tangled, and the tangled file is compiled."
 ;; supports them for the following characters:
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:5]]
+;; [[file:init.org::*Visual Experience][Visual Experience:6]]
 (defconst my/fantasque-ligatures
   '("!=" "!=="
     "==" "===" "=>" "==>" "=>>" "=/=" "=<<"
@@ -297,14 +312,14 @@ tangled, and the tangled file is compiled."
     "::" "&&"
     "//" "/*" "/**/"
     "*/"))
-;; Visual Experience:5 ends here
+;; Visual Experience:6 ends here
 
 
 
 ;; Machinery for setting ligatures up:
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:6]]
+;; [[file:init.org::*Visual Experience][Visual Experience:7]]
 (defun my/group-by-first-char (strs)
   (let ((strs (sort strs 'string<))
         (tbl))
@@ -325,31 +340,31 @@ tangled, and the tangled file is compiled."
                               `([,comps 0 font-shape-gstring]))))))
 
 (my/enable-compositions my/fantasque-ligatures)
-;; Visual Experience:6 ends here
+;; Visual Experience:7 ends here
 
 
 
 ;; NYAN NYAN NYAN
 
 
-;; [[file:~/.config/emacs/init.org::*Visual Experience][Visual Experience:7]]
+;; [[file:init.org::*Visual Experience][Visual Experience:8]]
 (use-package nyan-mode
   :config (nyan-mode 1))
-;; Visual Experience:7 ends here
+;; Visual Experience:8 ends here
 
 ;; Better Defaults
 
 ;; They're better.
 
 
-;; [[file:~/.config/emacs/init.org::*Better Defaults][Better Defaults:1]]
+;; [[file:init.org::*Better Defaults][Better Defaults:1]]
 (use-package better-defaults)
 ;; Better Defaults:1 ends here
 
 ;; Input
 
 
-;; [[file:~/.config/emacs/init.org::*Input][Input:1]]
+;; [[file:init.org::*Input][Input:1]]
 (setq default-input-method "TeX")
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
@@ -371,7 +386,7 @@ tangled, and the tangled file is compiled."
 ;; Use =utf-8= by default, because it's the 21st century and all.
 
 
-;; [[file:~/.config/emacs/init.org::*Input][Input:2]]
+;; [[file:init.org::*Input][Input:2]]
 (set-language-environment "UTF-8")
 (setq-default buffer-file-coding-system 'utf-8-unix)
 ;; Input:2 ends here
@@ -380,7 +395,7 @@ tangled, and the tangled file is compiled."
 ;;    This wants to be global?
 
 
-;; [[file:~/.config/emacs/init.org::*Smartparens][Smartparens:1]]
+;; [[file:init.org::*Smartparens][Smartparens:1]]
 (use-package smartparens
   :config
   (require 'smartparens-config))
@@ -389,7 +404,7 @@ tangled, and the tangled file is compiled."
 ;; Autocomplete
 
 
-;; [[file:~/.config/emacs/init.org::*Autocomplete][Autocomplete:1]]
+;; [[file:init.org::*Autocomplete][Autocomplete:1]]
 (use-package company
   :config
   (global-company-mode))
@@ -398,7 +413,7 @@ tangled, and the tangled file is compiled."
 ;; Syntax Checking
 
 
-;; [[file:~/.config/emacs/init.org::*Syntax Checking][Syntax Checking:1]]
+;; [[file:init.org::*Syntax Checking][Syntax Checking:1]]
 (use-package flycheck
   :delight (flycheck-mode " \N{BUTTERFLY}")
   :commands flycheck-mode)
@@ -407,7 +422,7 @@ tangled, and the tangled file is compiled."
 ;; Which-key
 
 
-;; [[file:~/.config/emacs/init.org::*Which-key][Which-key:1]]
+;; [[file:init.org::*Which-key][Which-key:1]]
 (use-package which-key
   :delight which-key-mode
   :config (which-key-mode 1))
@@ -419,7 +434,7 @@ tangled, and the tangled file is compiled."
 ;; refugee.
 
 
-;; [[file:~/.config/emacs/init.org::*Powerline][Powerline:1]]
+;; [[file:init.org::*Powerline][Powerline:1]]
 (use-package powerline
   :config (powerline-default-theme))
 ;; Powerline:1 ends here
@@ -431,7 +446,7 @@ tangled, and the tangled file is compiled."
 ;; that. This can be hooked into for e.g. fixing treemacs icons.
 
 
-;; [[file:~/.config/emacs/init.org::*Mixed-DPI Toggle][Mixed-DPI Toggle:1]]
+;; [[file:init.org::*Mixed-DPI Toggle][Mixed-DPI Toggle:1]]
 (defvar my/toggle-face-height-hook nil
   "Called when toggling the face height for mixed-DPI setups")
 
@@ -451,7 +466,7 @@ tangled, and the tangled file is compiled."
 ;; Color scheme
 
 
-;; [[file:~/.config/emacs/init.org::*Color scheme][Color scheme:1]]
+;; [[file:init.org::*Color scheme][Color scheme:1]]
 (setq my-light-theme 'gruvbox-light-soft)
 (setq my-dark-theme 'gruvbox-dark-soft)
 (setq my-initial-theme my-dark-theme)
@@ -463,7 +478,7 @@ tangled, and the tangled file is compiled."
 ;; light if it is dark.
 
 
-;; [[file:~/.config/emacs/init.org::*Color scheme][Color scheme:2]]
+;; [[file:init.org::*Color scheme][Color scheme:2]]
 (defun my/toggle-theme ()
   (interactive)
 
@@ -479,7 +494,7 @@ tangled, and the tangled file is compiled."
 ;; toggle key.
 
 
-;; [[file:~/.config/emacs/init.org::*Color scheme][Color scheme:3]]
+;; [[file:init.org::*Color scheme][Color scheme:3]]
 (use-package gruvbox-theme
   :if window-system
   :demand t
@@ -491,7 +506,7 @@ tangled, and the tangled file is compiled."
 ;; Undo-tree
 
 
-;; [[file:~/.config/emacs/init.org::*Undo-tree][Undo-tree:1]]
+;; [[file:init.org::*Undo-tree][Undo-tree:1]]
 (use-package undo-tree
   :delight undo-tree-mode
   :config
@@ -504,7 +519,7 @@ tangled, and the tangled file is compiled."
 ;; Window Management
 
 
-;; [[file:~/.config/emacs/init.org::*Window Management][Window Management:1]]
+;; [[file:init.org::*Window Management][Window Management:1]]
 (use-package ace-window
   :bind ("M-o" . ace-window))
 ;; Window Management:1 ends here
@@ -512,7 +527,7 @@ tangled, and the tangled file is compiled."
 ;; Evil
 
 
-;; [[file:~/.config/emacs/init.org::*Evil][Evil:1]]
+;; [[file:init.org::*Evil][Evil:1]]
 (use-package evil
   :config
   (evil-mode 1))
@@ -521,7 +536,7 @@ tangled, and the tangled file is compiled."
 ;; Projectile
 
 
-;; [[file:~/.config/emacs/init.org::*Projectile][Projectile:1]]
+;; [[file:init.org::*Projectile][Projectile:1]]
 (setq my-project-type-glyph-alist
       '((nil . "\N{NO ENTRY SIGN}")
         (generic . "\N{GLOBE WITH MERIDIANS}")
@@ -536,7 +551,7 @@ tangled, and the tangled file is compiled."
          (cons type type)))))
 ;; Projectile:1 ends here
 
-;; [[file:~/.config/emacs/init.org::*Projectile][Projectile:2]]
+;; [[file:init.org::*Projectile][Projectile:2]]
 (use-package projectile
   :demand
   :after ivy
@@ -553,19 +568,33 @@ tangled, and the tangled file is compiled."
 ;; Ivy
 
 
-;; [[file:~/.config/emacs/init.org::*Ivy][Ivy:1]]
+;; [[file:init.org::*Ivy][Ivy:1]]
 (use-package counsel
   :after ivy
-  :config (counsel-mode))
+  :delight counsel-mode
+  :config (counsel-mode 1))
 
 (use-package ivy
+  :demand t
   :delight ivy-mode
   :bind (("C-c C-r" . ivy-resume)
          ("C-x B" . ivy-switch-buffer-other-window))
   :custom
   (ivy-count-format "(%d/%d) ")
   (ivy-use-virtual-buffers t)
-  :config (ivy-mode))
+  :config (ivy-mode 1))
+
+(use-package ivy-rich
+  :after ivy
+  :custom
+  (ivy-virtual-abbreviate 'full
+                          ivy-rich-switch-buffer-align-virtual-buffer t
+                          ivy-rich-path-style 'abbrev)
+  :config
+  (progn
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer)
+    (ivy-rich-mode 1)))
 
 (use-package swiper
   :after ivy
@@ -575,7 +604,7 @@ tangled, and the tangled file is compiled."
 ;; Treemacs
 
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:1]]
+;; [[file:init.org::*Treemacs][Treemacs:1]]
 (use-package treemacs
   :config
   (progn
@@ -585,17 +614,17 @@ tangled, and the tangled file is compiled."
       #'treemacs-single-click-expand-action)))
 ;; Treemacs:1 ends here
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:2]]
+;; [[file:init.org::*Treemacs][Treemacs:2]]
 (use-package treemacs-projectile
   :after (treemacs projectile))
 ;; Treemacs:2 ends here
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:3]]
+;; [[file:init.org::*Treemacs][Treemacs:3]]
 (use-package treemacs-magit
   :after (treemacs magit))
 ;; Treemacs:3 ends here
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:4]]
+;; [[file:init.org::*Treemacs][Treemacs:4]]
 (use-package treemacs-evil
   :after (treemacs evil))
 ;; Treemacs:4 ends here
@@ -606,7 +635,7 @@ tangled, and the tangled file is compiled."
 ;; necessary. Supplying the universal argument toggles the treemacs buffer instead.
 
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:5]]
+;; [[file:init.org::*Treemacs][Treemacs:5]]
 (defun my/treemacs-command (arg)
   (interactive "P")
   (if (> (prefix-numeric-value arg) 1)
@@ -621,7 +650,7 @@ tangled, and the tangled file is compiled."
 ;; Rescale treemacs icons when we toggle the font-size for mixed-DPI.
 
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:6]]
+;; [[file:init.org::*Treemacs][Treemacs:6]]
 (add-hook 'my/toggle-face-height-hook
           #'(lambda ()
               (treemacs-resize-icons
@@ -633,14 +662,14 @@ tangled, and the tangled file is compiled."
 ;; Open Treemacs on startup automatically.
 
 
-;; [[file:~/.config/emacs/init.org::*Treemacs][Treemacs:7]]
+;; [[file:init.org::*Treemacs][Treemacs:7]]
 (treemacs-select-window)
 ;; Treemacs:7 ends here
 
 ;; Code Folding
 
 
-;; [[file:~/.config/emacs/init.org::*Code Folding][Code Folding:1]]
+;; [[file:init.org::*Code Folding][Code Folding:1]]
 (use-package origami
   :after evil
   :config
@@ -661,21 +690,21 @@ tangled, and the tangled file is compiled."
 ;; TRAMP
 
 
-;; [[file:~/.config/emacs/init.org::*TRAMP][TRAMP:1]]
+;; [[file:init.org::*TRAMP][TRAMP:1]]
 (setq-default explicit-shell-file-name "/bin/bash")
 ;; TRAMP:1 ends here
 
 ;; LSP
 
 
-;; [[file:~/.config/emacs/init.org::*LSP][LSP:1]]
+;; [[file:init.org::*LSP][LSP:1]]
 (use-package lsp-mode)
 ;; LSP:1 ends here
 
 ;; Org
 
 
-;; [[file:~/.config/emacs/init.org::*Org][Org:1]]
+;; [[file:init.org::*Org][Org:1]]
 (use-package org
   :init
   (progn
@@ -685,11 +714,11 @@ tangled, and the tangled file is compiled."
     ))
 ;; Org:1 ends here
 
-;; [[file:~/.config/emacs/init.org::*Org][Org:2]]
+;; [[file:init.org::*Org][Org:2]]
 (use-package htmlize)
 ;; Org:2 ends here
 
-;; [[file:~/.config/emacs/init.org::*Org][Org:3]]
+;; [[file:init.org::*Org][Org:3]]
 (use-package org-d20
   :commands org-d20-mode)
 ;; Org:3 ends here
@@ -697,7 +726,7 @@ tangled, and the tangled file is compiled."
 ;; Git
 
 
-;; [[file:~/.config/emacs/init.org::*Git][Git:1]]
+;; [[file:init.org::*Git][Git:1]]
 (use-package magit
   :bind ("C-x g" . magit-status)
   :config
@@ -705,12 +734,12 @@ tangled, and the tangled file is compiled."
     (add-hook 'magit-mode-hook #'(lambda () (origami-mode 0)))))
 ;; Git:1 ends here
 
-;; [[file:~/.config/emacs/init.org::*Git][Git:2]]
+;; [[file:init.org::*Git][Git:2]]
 (use-package evil-magit
   :after (evil magit))
 ;; Git:2 ends here
 
-;; [[file:~/.config/emacs/init.org::*Git][Git:3]]
+;; [[file:init.org::*Git][Git:3]]
 (use-package git-gutter-fringe
   :delight git-gutter-mode
   :config (global-git-gutter-mode 1))
@@ -719,7 +748,7 @@ tangled, and the tangled file is compiled."
 ;; C/C++
 
 
-;; [[file:~/.config/emacs/init.org::*C/C++][C/C++:1]]
+;; [[file:init.org::*C/C++][C/C++:1]]
 (use-package irony
   :hook (((c++-mode c-mode objc-mode) . irony-mode)
          (irony-mode . irony-cdb-autosetup-compile-options))
@@ -743,7 +772,7 @@ tangled, and the tangled file is compiled."
 ;; ObjC, so they're going to be treated as MATLAB files instead.
 
 
-;; [[file:~/.config/emacs/init.org::*MATLAB][MATLAB:1]]
+;; [[file:init.org::*MATLAB][MATLAB:1]]
 (use-package matlab-mode
   :mode "\\.m\\'"
   :init
@@ -757,7 +786,7 @@ tangled, and the tangled file is compiled."
 ;; Python development environment using Elpy.
 
 
-;; [[file:~/.config/emacs/init.org::*Python][Python:1]]
+;; [[file:init.org::*Python][Python:1]]
 (use-package elpy
   :delight (elpy-mode " \N{SNAKE}") (highlight-indentation-mode " \N{STRAIGHT RULER}")
   :config
@@ -774,7 +803,7 @@ tangled, and the tangled file is compiled."
 ;; Automatically format Python code on save using the Black formatter.
 
 
-;; [[file:~/.config/emacs/init.org::*Python][Python:2]]
+;; [[file:init.org::*Python][Python:2]]
 (use-package blacken
   :delight (blacken-mode " \N{WAVING BLACK FLAG}")
   :hook (elpy-mode . blacken-mode))
@@ -788,7 +817,7 @@ tangled, and the tangled file is compiled."
 ;; | ggtags         |                 |
 
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:1]]
+;; [[file:init.org::*Ocaml][Ocaml:1]]
 (defun my/ocaml/init-opam ()
   (if (executable-find "opam")
       (let ((share (string-trim-right
@@ -809,7 +838,7 @@ tangled, and the tangled file is compiled."
       (message "warning: cannot find `%s' or `%s' executable." "opam" "merlin"))))
 ;; Ocaml:1 ends here
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:2]]
+;; [[file:init.org::*Ocaml][Ocaml:2]]
 (use-package tuareg
   :mode (("\\.ml[ily]?$" . tuareg-mode)
          ("\\.topml$" . tuareg-mode))
@@ -823,7 +852,7 @@ tangled, and the tangled file is compiled."
       (add-to-list 'completion-ignored-extensions ext))))
 ;; Ocaml:2 ends here
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:3]]
+;; [[file:init.org::*Ocaml][Ocaml:3]]
 (use-package merlin
   :delight (merlin-mode " ⚗")
   :hook (tuareg-mode . merlin-mode)
@@ -832,18 +861,18 @@ tangled, and the tangled file is compiled."
     (add-to-list 'company-backends 'merlin-company-backend)))
 ;; Ocaml:3 ends here
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:4]]
+;; [[file:init.org::*Ocaml][Ocaml:4]]
 (use-package ocp-indent
   :hook (tuareg-mode . ocp-indent-caml-mode-setup))
 ;; Ocaml:4 ends here
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:5]]
+;; [[file:init.org::*Ocaml][Ocaml:5]]
 (with-eval-after-load 'smartparens
   (sp-local-pair 'tuareg-mode "'" nil :actions nil)
   (sp-local-pair 'tuareg-mode "`" nil :actions nil))
 ;; Ocaml:5 ends here
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:6]]
+;; [[file:init.org::*Ocaml][Ocaml:6]]
 (use-package utop
   :delight (utop-minor-mode " ū")
   :hook (tuareg-mode . utop-minor-mode)
@@ -854,7 +883,7 @@ tangled, and the tangled file is compiled."
       (message "warning: cannot find `opam' executable."))))
 ;; Ocaml:6 ends here
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:7]]
+;; [[file:init.org::*Ocaml][Ocaml:7]]
 (use-package flycheck-ocaml
   :after (flycheck merlin)
   :config
@@ -868,7 +897,7 @@ tangled, and the tangled file is compiled."
 ;; Register a projectile project type for Dune.
 
 
-;; [[file:~/.config/emacs/init.org::*Ocaml][Ocaml:8]]
+;; [[file:init.org::*Ocaml][Ocaml:8]]
 (use-package dune)
 
 (with-eval-after-load 'projectile
@@ -881,7 +910,7 @@ tangled, and the tangled file is compiled."
 ;; Go
 
 
-;; [[file:~/.config/emacs/init.org::*Go][Go:1]]
+;; [[file:init.org::*Go][Go:1]]
 ;; (use-package company-go)
 (use-package go-mode
   :mode ("\\.go\\'". go-mode)
@@ -899,7 +928,7 @@ tangled, and the tangled file is compiled."
 ;; CUDA
 
 
-;; [[file:~/.config/emacs/init.org::*CUDA][CUDA:1]]
+;; [[file:init.org::*CUDA][CUDA:1]]
 (use-package cuda-mode
   :mode (("\\.cu\\'" . cuda-mode)
          ("\\.cuh\\'" . cuda-mode)))
@@ -908,7 +937,7 @@ tangled, and the tangled file is compiled."
 ;; fish shell
 
 
-;; [[file:~/.config/emacs/init.org::*fish shell][fish shell:1]]
+;; [[file:init.org::*fish shell][fish shell:1]]
 (use-package fish-mode
   :mode (("\\.fish\\'" . fish-mode)))
 ;; fish shell:1 ends here
@@ -916,7 +945,7 @@ tangled, and the tangled file is compiled."
 ;; Markdown
 
 
-;; [[file:~/.config/emacs/init.org::*Markdown][Markdown:1]]
+;; [[file:init.org::*Markdown][Markdown:1]]
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
@@ -928,14 +957,14 @@ tangled, and the tangled file is compiled."
 ;; Rust
 
 
-;; [[file:~/.config/emacs/init.org::*Rust][Rust:1]]
+;; [[file:init.org::*Rust][Rust:1]]
 (use-package rustic)
 ;; Rust:1 ends here
 
 ;; Lua
 
 
-;; [[file:~/.config/emacs/init.org::*Lua][Lua:1]]
+;; [[file:init.org::*Lua][Lua:1]]
 (use-package lua-mode
   :commands (lua-mode)
   :mode ("\\.lua\\'" . lua-mode))
@@ -946,7 +975,7 @@ tangled, and the tangled file is compiled."
 ;; [[https://github.com/raxod502/straight.el/issues/240][AUCTeX is a pain in the ass to install.]]
 
 
-;; [[file:~/.config/emacs/init.org::*TeX][TeX:1]]
+;; [[file:init.org::*TeX][TeX:1]]
 (straight-use-package 'auctex)
 (setq TeX-parse-self t) ; Enable parse on load.
 (setq TeX-auto-save t) ; Enable parse on save.
@@ -964,7 +993,7 @@ tangled, and the tangled file is compiled."
 ;; Zig
 
 
-;; [[file:~/.config/emacs/init.org::*Zig][Zig:1]]
+;; [[file:init.org::*Zig][Zig:1]]
 (use-package zig-mode
   :commands (zig-mode)
   :mode ("\\.zig\\'" . zig-mode))
@@ -979,6 +1008,6 @@ tangled, and the tangled file is compiled."
 ;; Emacs Server
 
 
-;; [[file:~/.config/emacs/init.org::*Emacs Server][Emacs Server:1]]
+;; [[file:init.org::*Emacs Server][Emacs Server:1]]
 (server-start)
 ;; Emacs Server:1 ends here

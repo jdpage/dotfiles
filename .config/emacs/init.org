@@ -204,7 +204,6 @@ Instead of instantly consigning files to oblivion, move them to the trash.
 ** Visual Experience
 
 #+BEGIN_SRC emacs-lisp
-  (setq-default show-trailing-whitespace t)
   (setq inhibit-startup-message t)
   (setq global-linum-mode nil)  ; maybe?
 #+END_SRC
@@ -224,6 +223,19 @@ Font face and size. Let me tell you how much I love this font.
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'default-frame-alist
                '(font . "Fantasque Sans Mono-10"))
+#+END_SRC
+
+Highlight trailing whitespace, but not in like, every single buffer. In
+particular, we want to exclude the ivy buffers.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default show-trailing-whitespace t)
+
+  (defun my/hide-trailing-whitespace ()
+    (setq show-trailing-whitespace nil))
+
+  (add-hook 'minibuffer-setup-hook
+            'my/hide-trailing-whitespace)
 #+END_SRC
 
 Display emojis! These are crucial.
@@ -486,16 +498,30 @@ toggle key.
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :after ivy
-    :config (counsel-mode))
+    :delight counsel-mode
+    :config (counsel-mode 1))
 
   (use-package ivy
+    :demand t
     :delight ivy-mode
     :bind (("C-c C-r" . ivy-resume)
            ("C-x B" . ivy-switch-buffer-other-window))
     :custom
     (ivy-count-format "(%d/%d) ")
     (ivy-use-virtual-buffers t)
-    :config (ivy-mode))
+    :config (ivy-mode 1))
+
+  (use-package ivy-rich
+    :after ivy
+    :custom
+    (ivy-virtual-abbreviate 'full
+                            ivy-rich-switch-buffer-align-virtual-buffer t
+                            ivy-rich-path-style 'abbrev)
+    :config
+    (progn
+      (ivy-set-display-transformer 'ivy-switch-buffer
+                                   'ivy-rich-switch-buffer-transformer)
+      (ivy-rich-mode 1)))
 
   (use-package swiper
     :after ivy
