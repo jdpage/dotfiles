@@ -35,6 +35,7 @@
  ("gnu-elpa-mirror" . #("87168508db0553275e6638988f8be1b25782b007" 0 40 (fontified nil)))
  ("go-mode.el" . #("d17d21060b16a77f9ee28ff453e674225acbf1b1" 0 40 (fontified nil)))
  ("goto-chg" . #("85fca9f7d8b04be3fbb37cc5d42416f3c4d32830" 0 40 (fontified nil)))
+ ("hl-todo" . #("0598b98f63b623c1778cbd2e2f60b774b7a311b9" 0 40 (fontified nil)))
  ("ht.el" . #("fff8c43f0e03d5b98deb9f988522b839ce2ca253" 0 40 (fontified nil)))
  ("hydra" . #("112e689f75b59398d8eca79ac6562dca12b8a959" 0 40 (fontified nil)))
  ("irony-mode" . #("1e1aabaa686a08767ab33e5cd43ce8f0ebf8d020" 0 40 (fontified nil)))

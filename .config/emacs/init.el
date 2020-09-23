@@ -148,6 +148,7 @@ tangled, and the tangled file is compiled."
 ;; [[file:init.org::*Libraries][Libraries:1]]
 (use-package dash :config (dash-enable-font-lock))
 (use-package delight)
+(use-package hydra)
 ;; Libraries:1 ends here
 
 ;; Platform Fixes
@@ -285,10 +286,29 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Display emojis! These are crucial.
+;; Highlight TODO/FIXME/etc. comments.
 
 
 ;; [[file:init.org::*Visual Experience][Visual Experience:5]]
+(use-package hl-todo
+  :demand t
+  :init
+  (defhydra hydra-hl-todo (hl-todo-mode-map "C-c")
+    "Search TODOs"
+    ("p" hl-todo-previous "previous")
+    ("n" hl-todo-next "next")
+    ("o" hl-todo-occur "occur" :exit t)
+    ("i" hl-todo-insert "insert" :exit t))
+  :config
+  (global-hl-todo-mode 1))
+;; Visual Experience:5 ends here
+
+
+
+;; Display emojis! These are crucial.
+
+
+;; [[file:init.org::*Visual Experience][Visual Experience:6]]
 (use-package emojify
     :init
     (progn
@@ -298,7 +318,7 @@ tangled, and the tangled file is compiled."
     (progn
       (global-emojify-mode 1)
       (global-emojify-mode-line-mode 1)))
-;; Visual Experience:5 ends here
+;; Visual Experience:6 ends here
 
 
 
@@ -306,7 +326,7 @@ tangled, and the tangled file is compiled."
 ;; them for the following characters:
 
 
-;; [[file:init.org::*Visual Experience][Visual Experience:6]]
+;; [[file:init.org::*Visual Experience][Visual Experience:7]]
 (defconst my/fantasque-ligatures
   '("!=" "!=="
     "==" "===" "=>" "==>" "=>>" "=/=" "=<<"
@@ -319,14 +339,14 @@ tangled, and the tangled file is compiled."
     "::" "&&"
     "//" "/*" "/**/"
     "*/"))
-;; Visual Experience:6 ends here
+;; Visual Experience:7 ends here
 
 
 
 ;; Machinery for setting ligatures up:
 
 
-;; [[file:init.org::*Visual Experience][Visual Experience:7]]
+;; [[file:init.org::*Visual Experience][Visual Experience:8]]
 (defun my/group-by-first-char (strs)
   (let ((strs (sort strs 'string<))
         (tbl))
@@ -347,17 +367,17 @@ tangled, and the tangled file is compiled."
                               `([,comps 0 font-shape-gstring]))))))
 
 (my/enable-compositions my/fantasque-ligatures)
-;; Visual Experience:7 ends here
+;; Visual Experience:8 ends here
 
 
 
 ;; NYAN NYAN NYAN
 
 
-;; [[file:init.org::*Visual Experience][Visual Experience:8]]
+;; [[file:init.org::*Visual Experience][Visual Experience:9]]
 (use-package nyan-mode
   :config (nyan-mode 1))
-;; Visual Experience:8 ends here
+;; Visual Experience:9 ends here
 
 ;; Better Defaults
 

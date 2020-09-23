@@ -132,6 +132,7 @@ Main package management is through =use-package=, but that has to be installed f
 #+BEGIN_SRC emacs-lisp
   (use-package dash :config (dash-enable-font-lock))
   (use-package delight)
+  (use-package hydra)
 #+END_SRC
 
 ** Platform Fixes
@@ -243,6 +244,22 @@ want to exclude the ivy buffers.
 
   (add-hook 'minibuffer-setup-hook
             'my/hide-trailing-whitespace)
+#+END_SRC
+
+Highlight TODO/FIXME/etc. comments.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hl-todo
+    :demand t
+    :init
+    (defhydra hydra-hl-todo (hl-todo-mode-map "C-c")
+      "Search TODOs"
+      ("p" hl-todo-previous "previous")
+      ("n" hl-todo-next "next")
+      ("o" hl-todo-occur "occur" :exit t)
+      ("i" hl-todo-insert "insert" :exit t))
+    :config
+    (global-hl-todo-mode 1))
 #+END_SRC
 
 Display emojis! These are crucial.
