@@ -13,6 +13,7 @@
  ("dash.el" . #("b92ab5a39b987e4fe69317b9d9fda452300baf20" 0 40 (fontified nil)))
  ("delight" . #("70cb8cec9e5eb2c24364e065d85c2ea8f14a587c" 0 40 (fontified nil)))
  ("dune" . #("decc4fd79f62b28c370c31a5ccb9a38ef74e3443" 0 40 (fontified nil)))
+ ("elisp" . #("8fb5f3b8eb6a44178c233c11771f7293687a13ce" 0 40 (fontified nil)))
  ("elpy" . #("c766feb5c34dd17b7afba480ae9e90a08d75012c" 0 40 (fontified nil)))
  ("emacs-async" . #("14f48de586b0977e3470f053b810d77b07ea427a" 0 40 (fontified nil)))
  ("emacs-emojify" . #("d886069974d05c8c15654204f9afeaee962f3e7d" 0 40 (fontified nil)))
