@@ -14,8 +14,8 @@
 
 
 ;; After first run, =init.el= should mirror the source blocks in =init.org=. To regenerate
-;; =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience, this is done
-;; automatically on saving the buffer.
+;; =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience, this is done automatically
+;; on saving the buffer.
 
 ;; I originally had this byte-compile the file as well, which turned out to be a huge pain
 ;; when the file was valid, but wouldn't byte-compile because it referred to something from
@@ -260,6 +260,11 @@ tangled, and the tangled file is compiled."
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif Pro"
                     :height 1.25)
+
+(set-face-attribute 'font-lock-comment-face nil
+                    :family "Source Serif Pro"
+                    :slant 'normal
+                    :height 1.1)
 ;; Visual Experience:3 ends here
 
 
@@ -372,12 +377,14 @@ tangled, and the tangled file is compiled."
 (setq sentence-end-double-space nil)
 (setq-default fill-column 88)
 (setq-default truncate-lines nil)  ; visual wrap
+(global-visual-line-mode 1)
 (setq-default auto-fill-function 'do-auto-fill)
 (fset 'yes-or-no-p 'y-or-n-p)  ; laziness enhancer
 
 (use-package emacs
   :delight
-  (auto-fill-function " \N{LEFT RIGHT ARROW}"))
+  (auto-fill-function " \N{LEFT RIGHT ARROW}")
+  (visual-line-mode " \N{MIDLINE HORIZONTAL ELLIPSIS}"))
 
 (delete-selection-mode 1)
 (global-auto-revert-mode 1)
