@@ -5,8 +5,8 @@
 * Init machinery
 ** Auto-tangle
 
-All changes should be done in =init.org=, *not* in =init.el=. Changes to
-=init.el= will be overwritten.
+All changes should be done in =init.org=, *not* in =init.el=. Changes to =init.el= will be
+overwritten.
 
 We're using lexical binding for the init file, which is specified in a header.
 
@@ -15,14 +15,14 @@ We're using lexical binding for the init file, which is specified in a header.
 ;;; THIS IS A GENERATED FILE; see init.org
 #+END_SRC
 
-After first run, =init.el= should mirror the source blocks in =init.org=. To
-regenerate =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience,
-this is done automatically on saving the buffer.
+After first run, =init.el= should mirror the source blocks in =init.org=. To regenerate
+=init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience, this is done
+automatically on saving the buffer.
 
-I originally had this byte-compile the file as well, which turned out to be a
-huge pain when the file was valid, but wouldn't byte-compile because it referred
-to something from a package that hadn't been loaded/installed yet. This resulted
-in Emacs getting stuck on the byte-compiled version.
+I originally had this byte-compile the file as well, which turned out to be a huge pain
+when the file was valid, but wouldn't byte-compile because it referred to something from
+a package that hadn't been loaded/installed yet. This resulted in Emacs getting stuck on
+the byte-compiled version.
 
 #+BEGIN_SRC emacs-lisp
   (defun my/tangle-init ()
@@ -39,8 +39,8 @@ in Emacs getting stuck on the byte-compiled version.
   (add-hook 'after-save-hook 'my/tangle-init)
 #+END_SRC
 
-Since =init.el= gets overwritten constantly, Emacs adding customizations to it
-is a bit futile. These are punted off into another file.
+Since =init.el= gets overwritten constantly, Emacs adding customizations to it is a bit
+futile. These are punted off into another file.
 
 #+BEGIN_SRC emacs-lisp
   (setq custom-file (concat user-emacs-directory "custom.el"))
@@ -49,8 +49,8 @@ is a bit futile. These are punted off into another file.
 
 ** Machine-local settings support
 
-Machine-local settings live in a separate file. Load =local.el= if it exists,
-after the init file is complete.
+Machine-local settings live in a separate file. Load =local.el= if it exists, after the
+init file is complete.
 
 #+BEGIN_SRC emacs-lisp
   (defun my/load-local-init ()
@@ -76,8 +76,8 @@ constants to test against.
     "True if Emacs is running under Windows")
 #+END_SRC
 
-The GNU versions of some command-line tools support extra options. We use the
-GNU versions on Linux and Windows, but not macOS.
+The GNU versions of some command-line tools support extra options. We use the GNU
+versions on Linux and Windows, but not macOS.
 
 #+BEGIN_SRC emacs-lisp
   (defconst *my/is-gnu-like*
@@ -95,8 +95,7 @@ First, we have to give GNUTLS some magic options so we can connect to ELPA.
   ;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 #+END_SRC
 
-Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine
-experience.
+Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine experience.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-use-package-by-default t)
@@ -117,8 +116,7 @@ experience.
     (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
-Main package management is through =use-package=, but that has to be installed
-first.
+Main package management is through =use-package=, but that has to be installed first.
 
 #+BEGIN_SRC emacs-lisp
   (setq use-package-verbose t)
@@ -138,8 +136,8 @@ first.
 
 ** Platform Fixes
 
-On macOS, GUI applications tend to miss out on environment variables. We can
-pull these from the shell instead.
+On macOS, GUI applications tend to miss out on environment variables. We can pull these
+from the shell instead.
 
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
@@ -148,8 +146,8 @@ pull these from the shell instead.
     (exec-path-from-shell-initialize))
 #+END_SRC
 
-We only expect GNU coreutils on some systems. Tell Emacs about systems where we
-don't think we'll have them.
+We only expect GNU coreutils on some systems. Tell Emacs about systems where we don't
+think we'll have them.
 
 #+BEGIN_SRC emacs-lisp
   (when (not *my/is-gnu-like*)
@@ -158,8 +156,8 @@ don't think we'll have them.
 
 ** Safety & Backups
 
-By default Emacs scatters backup files all over the shop. Instead, we'd prefer
-for them to all be in one directory.
+By default Emacs scatters backup files all over the shop. Instead, we'd prefer for them
+to all be in one directory.
 
 #+BEGIN_SRC emacs-lisp
   (setq my-backup-directory (concat user-emacs-directory "backups"))
@@ -168,8 +166,8 @@ for them to all be in one directory.
   (setq backup-directory-alist `(("." . ,my-backup-directory)))
 #+END_SRC
 
-Keep multiple versions of backup files. We can always delete them later if they
-prove to be a pain.
+Keep multiple versions of backup files. We can always delete them later if they prove to
+be a pain.
 
 #+BEGIN_SRC emacs-lisp
   (setq backup-by-copying t)    ; this is a bit safer
@@ -223,10 +221,14 @@ Font face and size. Let me tell you how much I love this font.
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'default-frame-alist
                '(font . "Fantasque Sans Mono-10"))
+
+  (set-face-attribute 'variable-pitch nil
+                      :family "Source Serif Pro"
+                      :height 1.25)
 #+END_SRC
 
-Highlight trailing whitespace, but not in like, every single buffer. In
-particular, we want to exclude the ivy buffers.
+Highlight trailing whitespace, but not in like, every single buffer. In particular, we
+want to exclude the ivy buffers.
 
 #+BEGIN_SRC emacs-lisp
   (setq-default show-trailing-whitespace t)
@@ -252,8 +254,8 @@ Display emojis! These are crucial.
         (global-emojify-mode-line-mode 1)))
 #+END_SRC
 
-Ligatures are nice, and Fantasque Sans Mono supports them. Specifically, it
-supports them for the following characters:
+Ligatures are nice, and Fantasque Sans Mono supports them. Specifically, it supports
+them for the following characters:
 
 #+BEGIN_SRC emacs-lisp
   (defconst my/fantasque-ligatures
@@ -372,8 +374,7 @@ Use =utf-8= by default, because it's the 21st century and all.
 
 ** Powerline
 
-Powerline, for fancier modelines. Possibly also gives away that I'm a VIM
-refugee.
+Powerline, for fancier modelines. Possibly also gives away that I'm a VIM refugee.
 
 #+BEGIN_SRC emacs-lisp
   (use-package powerline
@@ -382,9 +383,9 @@ refugee.
 
 ** Mixed-DPI Toggle
 
-Because I have a mixed-DPI setup and I'm under X, I need to be able to rescale
-an entire Emacs frame at a time on the fly, so I also include keybindings for
-that. This can be hooked into for e.g. fixing treemacs icons.
+Because I have a mixed-DPI setup and I'm under X, I need to be able to rescale an entire
+Emacs frame at a time on the fly, so I also include keybindings for that. This can be
+hooked into for e.g. fixing treemacs icons.
 
 #+BEGIN_SRC emacs-lisp
   (defvar my/toggle-face-height-hook nil
@@ -411,8 +412,8 @@ that. This can be hooked into for e.g. fixing treemacs icons.
   (setq my-initial-theme my-dark-theme)
 #+END_SRC
 
-This provides a function which observes the current theme, and toggles it to
-light if it is dark.
+This provides a function which observes the current theme, and toggles it to light if it
+is dark.
 
 #+BEGIN_SRC emacs-lisp
   (defun my/toggle-theme ()
@@ -424,8 +425,7 @@ light if it is dark.
       (load-theme (if is-dark my-light-theme my-dark-theme) t)))
 #+END_SRC
 
-If we're using a windowing system, then apply the startup theme and bind a
-toggle key.
+If we're using a windowing system, then apply the startup theme and bind a toggle key.
 
 #+BEGIN_SRC emacs-lisp
   (use-package gruvbox-theme
@@ -556,8 +556,8 @@ toggle key.
     :after (treemacs evil))
 #+END_SRC
 
-Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if
-necessary. Supplying the universal argument toggles the treemacs buffer instead.
+Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if necessary.
+Supplying the universal argument toggles the treemacs buffer instead.
 
 #+BEGIN_SRC emacs-lisp
   (defun my/treemacs-command (arg)
@@ -635,7 +635,8 @@ Open Treemacs on startup automatically.
            ("C-c c" . org-capture))
     :init
     (progn
-      (setq org-log-done t)))
+      (setq org-log-done t)
+      (setq org-hide-emphasis-markers t)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -645,6 +646,23 @@ Open Treemacs on startup automatically.
                htmlize-file
                htmlize-many-files
                htmlize-many-files-dired))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-variable-pitch
+    :hook (org-mode . org-variable-pitch--enable)
+    :config
+    (set-face-attribute 'org-variable-pitch-fixed-face nil
+                        :family (org-variable-pitch--get-fixed-font)
+                        :height 0.8)
+    (set-face-attribute 'org-level-1 nil :height (+ 1.0 (expt 0.5 0)))
+    (set-face-attribute 'org-level-2 nil :height (+ 1.0 (expt 0.5 1)))
+    (set-face-attribute 'org-level-3 nil :height (+ 1.0 (expt 0.5 2)))
+    (set-face-attribute 'org-level-4 nil :height (+ 1.0 (expt 0.5 3)))
+    (set-face-attribute 'org-level-5 nil :height (+ 1.0 (expt 0.5 4)))
+    (set-face-attribute 'org-level-6 nil :height (+ 1.0 (expt 0.5 5)))
+    (set-face-attribute 'org-level-7 nil :height (+ 1.0 (expt 0.5 6)))
+    (set-face-attribute 'org-level-8 nil :height (+ 1.0 (expt 0.5 7))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -696,8 +714,8 @@ Open Treemacs on startup automatically.
 
 ** MATLAB
 
-Normally, =.m= files are treated as Objective-C files. I don't really do any
-ObjC, so they're going to be treated as MATLAB files instead.
+Normally, =.m= files are treated as Objective-C files. I don't really do any ObjC, so
+they're going to be treated as MATLAB files instead.
 
 #+BEGIN_SRC emacs-lisp
   (use-package matlab-mode

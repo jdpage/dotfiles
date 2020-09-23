@@ -1,7 +1,7 @@
 ;; Auto-tangle
 
-;; All changes should be done in =init.org=, *not* in =init.el=. Changes to
-;; =init.el= will be overwritten.
+;; All changes should be done in =init.org=, *not* in =init.el=. Changes to =init.el= will be
+;; overwritten.
 
 ;; We're using lexical binding for the init file, which is specified in a header.
 
@@ -13,14 +13,14 @@
 
 
 
-;; After first run, =init.el= should mirror the source blocks in =init.org=. To
-;; regenerate =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience,
-;; this is done automatically on saving the buffer.
+;; After first run, =init.el= should mirror the source blocks in =init.org=. To regenerate
+;; =init.el=, run =org-babel-tangle= (=C-c C-v t=); for convenience, this is done
+;; automatically on saving the buffer.
 
-;; I originally had this byte-compile the file as well, which turned out to be a
-;; huge pain when the file was valid, but wouldn't byte-compile because it referred
-;; to something from a package that hadn't been loaded/installed yet. This resulted
-;; in Emacs getting stuck on the byte-compiled version.
+;; I originally had this byte-compile the file as well, which turned out to be a huge pain
+;; when the file was valid, but wouldn't byte-compile because it referred to something from
+;; a package that hadn't been loaded/installed yet. This resulted in Emacs getting stuck on
+;; the byte-compiled version.
 
 
 ;; [[file:init.org::*Auto-tangle][Auto-tangle:2]]
@@ -40,8 +40,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Since =init.el= gets overwritten constantly, Emacs adding customizations to it
-;; is a bit futile. These are punted off into another file.
+;; Since =init.el= gets overwritten constantly, Emacs adding customizations to it is a bit
+;; futile. These are punted off into another file.
 
 
 ;; [[file:init.org::*Auto-tangle][Auto-tangle:3]]
@@ -51,8 +51,8 @@ tangled, and the tangled file is compiled."
 
 ;; Machine-local settings support
 
-;; Machine-local settings live in a separate file. Load =local.el= if it exists,
-;; after the init file is complete.
+;; Machine-local settings live in a separate file. Load =local.el= if it exists, after the
+;; init file is complete.
 
 
 ;; [[file:init.org::*Machine-local settings support][Machine-local settings support:1]]
@@ -84,8 +84,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; The GNU versions of some command-line tools support extra options. We use the
-;; GNU versions on Linux and Windows, but not macOS.
+;; The GNU versions of some command-line tools support extra options. We use the GNU
+;; versions on Linux and Windows, but not macOS.
 
 
 ;; [[file:init.org::*Machine-local settings support][Machine-local settings support:3]]
@@ -107,8 +107,7 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine
-;; experience.
+;; Package management uses [[https://github.com/raxod502/straight.el][straight.el]], for a more reliable cross-machine experience.
 
 
 ;; [[file:init.org::*Package Management][Package Management:2]]
@@ -132,8 +131,7 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Main package management is through =use-package=, but that has to be installed
-;; first.
+;; Main package management is through =use-package=, but that has to be installed first.
 
 
 ;; [[file:init.org::*Package Management][Package Management:3]]
@@ -154,8 +152,8 @@ tangled, and the tangled file is compiled."
 
 ;; Platform Fixes
 
-;; On macOS, GUI applications tend to miss out on environment variables. We can
-;; pull these from the shell instead.
+;; On macOS, GUI applications tend to miss out on environment variables. We can pull these
+;; from the shell instead.
 
 
 ;; [[file:init.org::*Platform Fixes][Platform Fixes:1]]
@@ -167,8 +165,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; We only expect GNU coreutils on some systems. Tell Emacs about systems where we
-;; don't think we'll have them.
+;; We only expect GNU coreutils on some systems. Tell Emacs about systems where we don't
+;; think we'll have them.
 
 
 ;; [[file:init.org::*Platform Fixes][Platform Fixes:2]]
@@ -178,8 +176,8 @@ tangled, and the tangled file is compiled."
 
 ;; Safety & Backups
 
-;; By default Emacs scatters backup files all over the shop. Instead, we'd prefer
-;; for them to all be in one directory.
+;; By default Emacs scatters backup files all over the shop. Instead, we'd prefer for them
+;; to all be in one directory.
 
 
 ;; [[file:init.org::*Safety & Backups][Safety & Backups:1]]
@@ -191,8 +189,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Keep multiple versions of backup files. We can always delete them later if they
-;; prove to be a pain.
+;; Keep multiple versions of backup files. We can always delete them later if they prove to
+;; be a pain.
 
 
 ;; [[file:init.org::*Safety & Backups][Safety & Backups:2]]
@@ -258,12 +256,16 @@ tangled, and the tangled file is compiled."
 ;; [[file:init.org::*Visual Experience][Visual Experience:3]]
 (add-to-list 'default-frame-alist
              '(font . "Fantasque Sans Mono-10"))
+
+(set-face-attribute 'variable-pitch nil
+                    :family "Source Serif Pro"
+                    :height 1.25)
 ;; Visual Experience:3 ends here
 
 
 
-;; Highlight trailing whitespace, but not in like, every single buffer. In
-;; particular, we want to exclude the ivy buffers.
+;; Highlight trailing whitespace, but not in like, every single buffer. In particular, we
+;; want to exclude the ivy buffers.
 
 
 ;; [[file:init.org::*Visual Experience][Visual Experience:4]]
@@ -295,8 +297,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Ligatures are nice, and Fantasque Sans Mono supports them. Specifically, it
-;; supports them for the following characters:
+;; Ligatures are nice, and Fantasque Sans Mono supports them. Specifically, it supports
+;; them for the following characters:
 
 
 ;; [[file:init.org::*Visual Experience][Visual Experience:6]]
@@ -431,8 +433,7 @@ tangled, and the tangled file is compiled."
 
 ;; Powerline
 
-;; Powerline, for fancier modelines. Possibly also gives away that I'm a VIM
-;; refugee.
+;; Powerline, for fancier modelines. Possibly also gives away that I'm a VIM refugee.
 
 
 ;; [[file:init.org::*Powerline][Powerline:1]]
@@ -442,9 +443,9 @@ tangled, and the tangled file is compiled."
 
 ;; Mixed-DPI Toggle
 
-;; Because I have a mixed-DPI setup and I'm under X, I need to be able to rescale
-;; an entire Emacs frame at a time on the fly, so I also include keybindings for
-;; that. This can be hooked into for e.g. fixing treemacs icons.
+;; Because I have a mixed-DPI setup and I'm under X, I need to be able to rescale an entire
+;; Emacs frame at a time on the fly, so I also include keybindings for that. This can be
+;; hooked into for e.g. fixing treemacs icons.
 
 
 ;; [[file:init.org::*Mixed-DPI Toggle][Mixed-DPI Toggle:1]]
@@ -475,8 +476,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; This provides a function which observes the current theme, and toggles it to
-;; light if it is dark.
+;; This provides a function which observes the current theme, and toggles it to light if it
+;; is dark.
 
 
 ;; [[file:init.org::*Color scheme][Color scheme:2]]
@@ -491,8 +492,7 @@ tangled, and the tangled file is compiled."
 
 
 
-;; If we're using a windowing system, then apply the startup theme and bind a
-;; toggle key.
+;; If we're using a windowing system, then apply the startup theme and bind a toggle key.
 
 
 ;; [[file:init.org::*Color scheme][Color scheme:3]]
@@ -632,8 +632,8 @@ tangled, and the tangled file is compiled."
 
 
 
-;; Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if
-;; necessary. Supplying the universal argument toggles the treemacs buffer instead.
+;; Bind =C-x t= so that it moves the cursor to the treemacs buffer, opening it if necessary.
+;; Supplying the universal argument toggles the treemacs buffer instead.
 
 
 ;; [[file:init.org::*Treemacs][Treemacs:5]]
@@ -721,7 +721,8 @@ tangled, and the tangled file is compiled."
          ("C-c c" . org-capture))
   :init
   (progn
-    (setq org-log-done t)))
+    (setq org-log-done t)
+    (setq org-hide-emphasis-markers t)))
 ;; Org:1 ends here
 
 ;; [[file:init.org::*Org][Org:2]]
@@ -734,9 +735,26 @@ tangled, and the tangled file is compiled."
 ;; Org:2 ends here
 
 ;; [[file:init.org::*Org][Org:3]]
+(use-package org-variable-pitch
+  :hook (org-mode . org-variable-pitch--enable)
+  :config
+  (set-face-attribute 'org-variable-pitch-fixed-face nil
+                      :family (org-variable-pitch--get-fixed-font)
+                      :height 0.8)
+  (set-face-attribute 'org-level-1 nil :height (+ 1.0 (expt 0.5 0)))
+  (set-face-attribute 'org-level-2 nil :height (+ 1.0 (expt 0.5 1)))
+  (set-face-attribute 'org-level-3 nil :height (+ 1.0 (expt 0.5 2)))
+  (set-face-attribute 'org-level-4 nil :height (+ 1.0 (expt 0.5 3)))
+  (set-face-attribute 'org-level-5 nil :height (+ 1.0 (expt 0.5 4)))
+  (set-face-attribute 'org-level-6 nil :height (+ 1.0 (expt 0.5 5)))
+  (set-face-attribute 'org-level-7 nil :height (+ 1.0 (expt 0.5 6)))
+  (set-face-attribute 'org-level-8 nil :height (+ 1.0 (expt 0.5 7))))
+;; Org:3 ends here
+
+;; [[file:init.org::*Org][Org:4]]
 (use-package org-d20
   :commands org-d20-mode)
-;; Org:3 ends here
+;; Org:4 ends here
 
 ;; Git
 
@@ -783,8 +801,8 @@ tangled, and the tangled file is compiled."
 
 ;; MATLAB
 
-;; Normally, =.m= files are treated as Objective-C files. I don't really do any
-;; ObjC, so they're going to be treated as MATLAB files instead.
+;; Normally, =.m= files are treated as Objective-C files. I don't really do any ObjC, so
+;; they're going to be treated as MATLAB files instead.
 
 
 ;; [[file:init.org::*MATLAB][MATLAB:1]]
