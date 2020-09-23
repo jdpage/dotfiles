@@ -368,7 +368,7 @@ tangled, and the tangled file is compiled."
 (setq default-input-method "TeX")
 (setq initial-scratch-message nil)
 (setq sentence-end-double-space nil)
-(setq-default fill-column 80)
+(setq-default fill-column 88)
 (setq-default truncate-lines nil)  ; visual wrap
 (setq-default auto-fill-function 'do-auto-fill)
 (fset 'yes-or-no-p 'y-or-n-p)  ; laziness enhancer
@@ -406,6 +406,7 @@ tangled, and the tangled file is compiled."
 
 ;; [[file:init.org::*Autocomplete][Autocomplete:1]]
 (use-package company
+  :delight (company-mode " \N{FACTORY}")
   :config
   (global-company-mode))
 ;; Autocomplete:1 ends here
@@ -698,7 +699,15 @@ tangled, and the tangled file is compiled."
 
 
 ;; [[file:init.org::*LSP][LSP:1]]
-(use-package lsp-mode)
+(use-package lsp-mode
+  :hook ((lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp)
+
+(use-package lsp-ivy
+  :commands lsp-ivy-workspace-symbol)
+
+(use-package lsp-treemacs
+  :commands lsp-treemacs-errors-list)
 ;; LSP:1 ends here
 
 ;; Org
@@ -706,16 +715,22 @@ tangled, and the tangled file is compiled."
 
 ;; [[file:init.org::*Org][Org:1]]
 (use-package org
+  :mode ("\\.org\\'" . org-mode)
+  :bind (("C-c l" . org-store-link)
+         ("C-c a" . org-agenda)
+         ("C-c c" . org-capture))
   :init
   (progn
-    (define-key global-map "\C-cl" 'org-store-link)
-    (define-key global-map "\C-ca" 'org-agenda)
-    (setq org-log-done t)
-    ))
+    (setq org-log-done t)))
 ;; Org:1 ends here
 
 ;; [[file:init.org::*Org][Org:2]]
-(use-package htmlize)
+(use-package htmlize
+  :commands (htmlize-buffer
+             htmlize-region
+             htmlize-file
+             htmlize-many-files
+             htmlize-many-files-dired))
 ;; Org:2 ends here
 
 ;; [[file:init.org::*Org][Org:3]]
@@ -789,10 +804,10 @@ tangled, and the tangled file is compiled."
 ;; [[file:init.org::*Python][Python:1]]
 (use-package elpy
   :delight (elpy-mode " \N{SNAKE}") (highlight-indentation-mode " \N{STRAIGHT RULER}")
+  :defer t
+  :init (advice-add 'python-mode :before 'elpy-enable)
   :config
   (progn
-    (elpy-enable)
-
     ;; replace flymake with flycheck
     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
     (add-hook 'elpy-mode-hook 'flycheck-mode)))
@@ -898,7 +913,9 @@ tangled, and the tangled file is compiled."
 
 
 ;; [[file:init.org::*Ocaml][Ocaml:8]]
-(use-package dune)
+(use-package dune
+  :mode ("\\(?:\\`\\|/\\)dune\\(?:\\.inc\\)?\\'" . dune-mode)
+  :commands (dune-promote dune-runtest-and-promote))
 
 (with-eval-after-load 'projectile
   (projectile-register-project-type
@@ -958,7 +975,8 @@ tangled, and the tangled file is compiled."
 
 
 ;; [[file:init.org::*Rust][Rust:1]]
-(use-package rustic)
+(use-package rustic
+  :mode ("\\.rs\\'" . rustic-mode))
 ;; Rust:1 ends here
 
 ;; Lua
@@ -970,9 +988,9 @@ tangled, and the tangled file is compiled."
   :mode ("\\.lua\\'" . lua-mode))
 ;; Lua:1 ends here
 
-;; TeX
+;; TODO TeX
 
-;; [[https://github.com/raxod502/straight.el/issues/240][AUCTeX is a pain in the ass to install.]]
+;; [[https://github.com/raxod502/straight.el/issues/240][AUCTeX is a pain in the ass to install.]] Need to figure out how to delay-load this.
 
 
 ;; [[file:init.org::*TeX][TeX:1]]
